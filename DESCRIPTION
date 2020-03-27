@@ -1,0 +1,26 @@
+Package: eicm
+Version: 1.0.0
+Date: 2020-03-13
+Title: Explicit Interaction Community Models
+Authors@R: c(person(given="Miguel", family="Porto",
+  email="mpbertolo@gmail.com", comment = c(ORCID="0000-0001-7640-0623"), role=c("aut", "cre")),
+  person(given="Pedro", family="Beja", comment = c(ORCID="0000-0001-8164-0760"), role="aut"))
+Maintainer: Miguel Porto <mpbertolo@gmail.com>
+Depends: R (>= 2.10)
+Imports: methods, parallel, GA (>= 3.1.1), snow, doSNOW, iterators, pso, ucminf, foreach, graphics
+Suggests: igraph, knitr, rmarkdown
+VignetteBuilder: knitr
+Description: Model fitting and species biotic interaction network topology selection for explicit
+  interaction community models. Explicit interaction community models are an extension of binomial
+  linear models for joint modelling of species communities, that incorporate both the effects of
+  species biotic interactions and the effects of missing covariates. Species interactions are modelled
+  as direct effects of each species on each of the others, and are estimated alongside the effects of
+  missing covariates, modelled as latent factors. The package includes a penalized maximum likelihood
+  fitting function, and a genetic algorithm for selecting the most parsimonious species interaction
+  network topology.
+License: GPL (>= 2)
+Encoding: UTF-8
+URL: https://github.com/miguel-porto/eicm
+BugReports: https://github.com/miguel-porto/eicm
+LazyData: true
+RoxygenNote: 6.1.1
