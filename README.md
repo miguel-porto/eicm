@@ -1,4 +1,4 @@
-# eicm (R package) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+# eicm (R package) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/eicm)](https://cran.r-project.org/package=eicm) [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0) [![Downloads](http://cranlogs.r-pkg.org/badges/eicm)](https://cran.r-project.org/package=eicm) [![Total downloads](https://cranlogs.r-pkg.org/badges/grand-total/eicm)](https://cran.r-project.org/package=eicm)
 
 **Explicit Interaction Community Models**
 
