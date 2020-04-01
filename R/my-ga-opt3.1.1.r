@@ -69,6 +69,9 @@ my.ga <- function(
   penalty <- callArgs$penalty
   callArgs$penalty <- NULL
   
+  modelobject <- callArgs$modelobject
+  callArgs$modelobject <- NULL
+
   if(any("min" %in% names(callArgs)))
   {
     lower <- callArgs$min
@@ -237,8 +240,10 @@ my.ga <- function(
 		
  		if(interactive()) {
 	 		message(sprintf("\rFitting %d models...             ", length(similar.models)), appendLF=is.null(cls))
+#	 		cat(sprintf("\rFitting %d models...             ", length(similar.models)))
 			progress <- function(n) {
 				message(sprintf("\rFitting %d models... %d complete", length(similar.models), n), appendLF=FALSE)
+#				cat(sprintf("\rFitting %d models... %d complete", length(similar.models), n))
 #				writeLines(sprintf("\rFitting %d models... %d complete", length(similar.models), n), conn, sep="")
 #				flush(conn)
 			}
@@ -247,60 +252,83 @@ my.ga <- function(
 #		conn <- base::stdout()
 #		parallel::clusterExport(cls, c("progress", "conn"), envir=environment())
  		# no duplicates are evaluated
-		tmpEval <- foreach::foreach(i. = seq_along(similar.models), .options.multicore=list(preschedule = FALSE)
-			, .options.snow=list(progress=progress)
-			) %DO% {
-#		tmpEval <- lapply(seq_along(similar.models), function(i.) {
-				if(identical(similar.models[[i.]], NA)) {
-					suppressMessages(
-						tmp <- do.call(fitness, c(list(bitstrings.to.eval[i., ]), callArgs))	# no similar models, that's for the first evaluation
-					)
-				} else {
-					suppressMessages(
-						tmp <- do.call(fitness, c(list(bitstrings.to.eval[i., ], similar.model=similar.models[[i.]]), callArgs)) # similar model informs fitting
-					)
-				}
 
-				if(inherits(tmp, "CV.models")) {
-				# CROSS VALIDATION TODO
-					rmse <- sapply(tmp, function(m) {
-						if(!attr(m, "possible")) return(NA)
-						
-						testdata <- attr(m, "testingdata")
-						m$data$env <- testdata$env
+		# NOTE we need the following loop (a workaround) because, for some reason, sometimes a
+		# corrupted occurence matrix is passed to the parallel workers.
+		# TODO investigate whether this is due to a memory leak, or an external bug of doParallel.
+		tmpEval <- rep(list(NA), length(similar.models))
+		while(any(sapply(tmpEval, identical, NA))) {
+		
+			NAs <- sapply(tmpEval, identical, NA)
+			if(sum(NAs) < length(tmpEval))
+				message(sprintf("Repeating %d models...", sum(NAs)))
+			
+			tmpEval[NAs] <- foreach::foreach(i. = seq_along(similar.models[NAs]), .options.multicore=list(preschedule = FALSE)
+				, .options.snow=list(progress=progress)) %DO% {
+	#		tmpEval <- lapply(seq_along(similar.models), function(i.) {
+					if(!all(sort(unique(as.vector(modelobject$data$occurrences))) == c(0, 1))) {
+						# corrupted matrix! TODO: why does it happen?
+						# saveRDS(modelobject$data$occurrences, file="debug-GA2error.rds")
+						return(NA)
+					}
 
-						return(logLik.eicm(m, testdata$presences))
-						#preds <- predict(m, 1000)
-						#sum((preds - testdata$presences) ^ 2)
-					})
-					criterion.value <- mean(rmse)
-					if(is.na(criterion.value))
-						out <- NA
+					if(identical(similar.models[[i.]], NA)) {
+						suppressMessages(
+							tmp <- do.call(fitness, args=c(string=list(bitstrings.to.eval[i., ]),
+								modelobject=list(modelobject),
+								callArgs))	# no similar models, that's for the first evaluation
+						)
+					} else {
+						suppressMessages(
+							tmp <- do.call(fitness, args=c(string=list(bitstrings.to.eval[i., ]),
+								modelobject=list(modelobject),
+								similar.model=list(similar.models[[i.]]),
+								callArgs)) # similar model informs fitting
+						)
+					}
+
+					if(inherits(tmp, "CV.models")) {
+					# CROSS VALIDATION TODO
+						rmse <- sapply(tmp, function(m) {
+							if(!attr(m, "possible")) return(NA)
+							
+							testdata <- attr(m, "testingdata")
+							m$data$env <- testdata$env
+
+							return(logLik.eicm(m, testdata$presences))
+							#preds <- predict(m, 1000)
+							#sum((preds - testdata$presences) ^ 2)
+						})
+						criterion.value <- mean(rmse)
+						if(is.na(criterion.value))
+							out <- NA
+						else
+							out <- tmp[[1]]$model
+					} else {
+					# AIC-like
+						#if(!attr(tmp, "possible")) {
+						#	stop("Fitting not possible or not improved", list(i., bitstrings.to.eval, similar.models, tmp))
+						#	out <- NA
+						#	criterion.value <- NA
+						#} else {
+							out <- tmp$model
+							criterion.value <- -criterion(tmp) -
+								penalty * sum(tmp$model$options$mask$sp != 0)
+						#}
+					}
+					
+					if(identical(out, NA) || identical(criterion.value, NA))
+						stop("This should never happen")
 					else
-						out <- tmp[[1]]$model
-				} else {
-				# AIC-like
-					#if(!attr(tmp, "possible")) {
-					#	stop("Fitting not possible or not improved", list(i., bitstrings.to.eval, similar.models, tmp))
-					#	out <- NA
-					#	criterion.value <- NA
-					#} else {
-						out <- tmp$model
-						criterion.value <- -criterion(tmp) -
-							penalty * sum(tmp$model$options$mask$sp != 0)
-					#}
-				}
-				
-				if(identical(out, NA) || identical(criterion.value, NA))
-					stop("This should never happen")
-				else
-					attr(out, "criterion") <- criterion.value
+						attr(out, "criterion") <- criterion.value
 
-				rm(tmp)
-				gc()
-#				progress(i., conn)
-				return(out)
+					rm(tmp)
+					gc()
+	#				progress(i., conn)
+					return(out)
+			}
 		}
+#	)
 		
 		# now merge with fitness vector
 		string.eval <- apply(bitstrings.to.eval, 1, paste, collapse="")

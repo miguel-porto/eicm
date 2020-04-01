@@ -119,8 +119,9 @@ eicm.matrix <- function(env.coefs, sp.coefs=NULL, latent=NULL, options=NULL) {
 #' @return A \code{eicm.data} object that can be used for defining a model.
 #' @export
 eicm.data <- function(occurrences=NULL, env=NULL, traits=NULL, intercept=TRUE) {
-	if(!is.null(occurrences) && !all(sort(unique(as.vector(occurrences))) == c(0, 1)))
+	if(!is.null(occurrences) && !all(sort(unique(as.vector(occurrences))) == c(0, 1))) {
 		stop("'occurrences' must be a presence-absence matrix, with only 0s and 1s.")
+	}
 
 	if(is.null(env) && !is.null(occurrences))
 		env <- matrix(nrow=nrow(occurrences), ncol=0)

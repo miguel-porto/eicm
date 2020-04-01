@@ -1,5 +1,5 @@
 Package: eicm
-Version: 1.0.0
+Version: 1.0.1
 Date: 2020-03-13
 Title: Explicit Interaction Community Models
 Authors@R: c(person(given="Miguel", family="Porto",

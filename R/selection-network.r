@@ -94,7 +94,7 @@ model.selection.network <- function(object, regularization, regularization.type,
 	# run the genetic algorithm to search the best model, ranked by criterion
 	results <- my.ga(
 		#ifelse(select.direction, "ternary", "binary"), fitness=bitStringToModel.network, criterion=criterion
-		fitness=bitStringToModel.network, criterion=criterion, object=object, bit.types=bit.type, correspondence=corresp
+		fitness=bitStringToModel.network, criterion=criterion, modelobject=object, bit.types=bit.type, correspondence=corresp
 		, regularization=regularization, penalty=penalty, estimate.latents=estimate.latents, optim.method=optim.method, optim.control=optim.control
 		, select.direction=select.direction, fast=fast
 		, nBits = nbits, popSize = popsize.sel, maxiter = 100000, run=maxit.stagnated, parallel=parallel
@@ -106,8 +106,8 @@ model.selection.network <- function(object, regularization, regularization.type,
 }
 
 # Builds a suitable model mask according the provided mixed binary/ternary bit string
-bitStringToMBO.network.with.direction <- function(string, object, bit.types, correspondence) {
-	nsp <- ncol(object$data$occurrences)
+bitStringToMBO.network.with.direction <- function(string, modelobject, bit.types, correspondence) {
+	nsp <- ncol(modelobject$data$occurrences)
 
 	if(sum(bit.types > 0) != length(string)) {
 		stop(sprintf("Bit length %d is not the same as the number of estimated parameters %d", length(string), sum(bit.types > 0)))
@@ -128,10 +128,10 @@ bitStringToMBO.network.with.direction <- function(string, object, bit.types, cor
 	mask <- list(env=maskenv, sp=masksp)
 
 	# merge mask with model builder options
-	if(is.null(object$model$options))
+	if(is.null(modelobject$model$options))
 		options <- list(mask=mask)
 	else {
-		options <- object$model$options + list(mask=mask)
+		options <- modelobject$model$options + list(mask=mask)
 	}
 
 	rm(mask)
@@ -140,8 +140,8 @@ bitStringToMBO.network.with.direction <- function(string, object, bit.types, cor
 
 # Builds a suitable model mask according the provided bit string
 # NOTE: should we deprecate this feature?
-bitStringToMBO.network <- function(string, object) {
-	nsp <- ncol(object$data$occurrences)
+bitStringToMBO.network <- function(string, modelobject) {
+	nsp <- ncol(modelobject$data$occurrences)
 	# how many bits do we need to encode model selection
 	nbits <- (nsp * (nsp - 1)) / 2
 
@@ -165,7 +165,7 @@ bitStringToMBO.network <- function(string, object) {
 	mask <- list(env=maskenv, sp=masksp)
 
 	# merge mask with model builder options
-	if(is.null(object$model$options))
+	if(is.null(modelobject$model$options))
 		options <- list(mask=mask)
 	else {
 	# TODO do we need this?
@@ -181,15 +181,15 @@ bitStringToMBO.network <- function(string, object) {
 	return(options)
 }
 
-bitStringToModel.network <- function(string, object, bit.types, correspondence, regularization, estimate.latents=FALSE
+bitStringToModel.network <- function(string, modelobject, bit.types, correspondence, regularization, estimate.latents=FALSE
 	, similar.model=NULL, optim.method=NULL, optim.control=NULL, select.direction=TRUE, fast=FALSE, ...) {
 
 	if(select.direction)
-		options <- bitStringToMBO.network.with.direction(string, object, bit.types, correspondence)
+		options <- bitStringToMBO.network.with.direction(string, modelobject, bit.types, correspondence)
 	else
-		options <- bitStringToMBO.network(string, object)
+		options <- bitStringToMBO.network(string, modelobject)
 
-	init.values <- if(is.null(similar.model)) object$model else similar.model
+	init.values <- if(is.null(similar.model)) modelobject$model else similar.model
 	
 	# We need this to force random initial values in all suggestions
 	# TODO: WHY? Because if we start those at 0, we'll probably be stuck in a local optimum?
@@ -211,11 +211,11 @@ bitStringToModel.network <- function(string, object, bit.types, correspondence, 
 	
 	if(estimate.latents) {
 	# remove estimated latents from model data
-		object$data$env <- object$data$env[, 1:(ncol(object$data$env) - ncol(init.values$samples))]
+		modelobject$data$env <- modelobject$data$env[, 1:(ncol(modelobject$data$env) - ncol(init.values$samples))]
 	}
 
-	npars <- getNumberOfParameters(ncol(object$data$occurrences), ncol(object$data$env), options)
-	out <- eicm.fit(object$data$occurrences, object$data$env, intercept=FALSE, n.latent=ifelse(estimate.latents, ncol(init.values$samples), 0)
+	npars <- getNumberOfParameters(ncol(modelobject$data$occurrences), ncol(modelobject$data$env), options)
+	out <- eicm.fit(modelobject$data$occurrences, modelobject$data$env, intercept=FALSE, n.latent=ifelse(estimate.latents, ncol(init.values$samples), 0)
 		, regularization=regularization, regularization.type=attr(regularization, "type")
 		# if we have a similar model, use it for starting values
 		, initial.values=init.values

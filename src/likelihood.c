@@ -21,13 +21,15 @@ SEXP _likelihood(SEXP _env, SEXP _envcoefs, SEXP _spcoefs, SEXP _observed) {
 	int *observed = 			INTEGER_POINTER(_observed);	
 
 	double *envLP = 			malloc(sizeof(double) * sizeX);
-	
+	if(envLP == NULL) return R_NilValue;
 	short *dependency = 		computeDependencyMatrix(_spcoefs);
+	if(dependency == NULL) return R_NilValue;
 	
 	SEXP out;
 	
 	out = PROTECT(				NEW_NUMERIC(nsamples));
 	double *pOut = 				NUMERIC_POINTER(out);
+	
 
 	// Compute the environmental Linear Predictor in each sample, for all species
 	matProd(env, envcoefs, envLP, nsamples, nspecies, nenv);
@@ -91,13 +93,15 @@ SEXP _likelihood_NAallowed(SEXP _env, SEXP _envcoefs, SEXP _spcoefs, SEXP _obser
 	int *observed = 			INTEGER_POINTER(_observed);	
 
 	double *envLP = 			malloc(sizeof(double) * sizeX);
-	
+	if(envLP == NULL) return R_NilValue;
 	short *dependency = 		computeDependencyMatrix(_spcoefs);
+	if(dependency == NULL) return R_NilValue;
 	
 	SEXP out;
 	
 	out = PROTECT(				NEW_NUMERIC(nsamples));
 	double *pOut = 				NUMERIC_POINTER(out);
+	
 
 	// Compute the environmental Linear Predictor in each sample, for all species
 	matProd(env, envcoefs, envLP, nsamples, nspecies, nenv);
@@ -164,22 +168,25 @@ SEXP _mathematical_likelihood_fast(SEXP _env, SEXP _envcoefs, SEXP _spcoefs, SEX
 	int *observed = 			INTEGER_POINTER(_observed);	
 
 	double *envLP = 			malloc(sizeof(double) * sizeX);
-	
+	if(envLP == NULL) return R_NilValue;
 	short *dependency = 		computeDependencyMatrix(_spcoefs);
+	if(dependency == NULL) return R_NilValue;
 	
 	SEXP out;
 	
 	out = PROTECT(				NEW_NUMERIC(nsamples));
 	double *pOut = 				NUMERIC_POINTER(out);
+	
 
 	// TODO this should be on load hook
-	if(logInvLogitTab[0] == 0) {
-		//Rprintf("Creating lookup\n");
+/*	if(logInvLogitTab[0] == 0) {
 		for(int i=0; i<LOOKUPTABLESIZE; i++) {
 			logInvLogitTab[i] = log(1 / (1 + exp(-(double) (i - MIDDLELOOKUPTABLE) / DIVISOR)));
 			logSymmInvLogitTab[i] = log(1- 1 / (1 + exp(-(double) (i - MIDDLELOOKUPTABLE) / DIVISOR)));
 		}
 	}
+*/
+
 //	float invLogitTab[LOOKUPTABLESIZE];
 /*	createInverseLinkFunctionTableProb(invLogitTab);*/
 
@@ -247,13 +254,15 @@ SEXP _likelihood_superfast(SEXP _env, SEXP _envcoefs, SEXP _spcoefs, SEXP _obser
 	const double *spcoefs = 	NUMERIC_POINTER(_spcoefs);
 	const int *observed = 		INTEGER_POINTER(_observed);	
 
-	double *envLP =		malloc(sizeof(double) * sizeX);
-	
-	short *dependency =	computeDependencyMatrix(_spcoefs);
+	double *envLP =		malloc(sizeof(double) * sizeX);	
+	if(envLP == NULL) return R_NilValue;
+	short *dependency = 		computeDependencyMatrix(_spcoefs);
+	if(dependency == NULL) return R_NilValue;
 	
 	SEXP out = 					PROTECT(NEW_NUMERIC(1));
 	double *pOut = 				NUMERIC_POINTER(out);
 	double prob = 				0;
+	
 
 //	FILE *pFile2 = fopen("myfile2.txt", "a");
 
@@ -326,12 +335,14 @@ SEXP _likelihood_superfast_NAallowed(SEXP _env, SEXP _envcoefs, SEXP _spcoefs, S
 	const int *observed = 		INTEGER_POINTER(_observed);	
 
 	double *envLP =		malloc(sizeof(double) * sizeX);
-	
-	short *dependency =	computeDependencyMatrix(_spcoefs);
+	if(envLP == NULL) return R_NilValue;
+	short *dependency = 		computeDependencyMatrix(_spcoefs);
+	if(dependency == NULL) return R_NilValue;
 	
 	SEXP out = 					PROTECT(NEW_NUMERIC(1));
 	double *pOut = 				NUMERIC_POINTER(out);
 	double prob = 				0;
+	
 
 //	FILE *pFile2 = fopen("myfile2.txt", "a");
 
@@ -403,6 +414,8 @@ short *computeDependencyMatrix(SEXP _spcoefs) {
 	short ndeps[1000];
 	int i, j, base;
 	
+	if(dependency == NULL) return NULL;
+	
 	memset(ndeps, 0, nspecies * sizeof(short));
 	memset(dependency, 0xff, nspecies * nspecies * sizeof(short));
 	
@@ -465,6 +478,7 @@ SEXP _isCyclic(SEXP _spcoefs) {
 				total ++;
 		}
 	}
-	
+	free(leafnodes);
+	free(checkednodes);
 }
 
