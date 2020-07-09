@@ -7,8 +7,8 @@
 eicm(occurrences, env = NULL, traits = NULL, intercept = TRUE,
   n.latent = 0, forbidden = NULL, mask.sp = NULL,
   exclude.prevalence = 0, regularization = c(ifelse(n.latent > 0, 6,
-  0.5), ifelse(do.selection, 0.5, 0.1)), regularization.type = "ridge",
-  penalty = 4, theta.threshold = 0.5, latent.lambda = 1,
+  0.5), 1), regularization.type = "hybrid", penalty = 4,
+  theta.threshold = 0.5, latent.lambda = 1,
   fit.all.with.latents = TRUE, popsize.sel = 2,
   n.cores = parallel::detectCores(), true.model = NULL,
   do.selection = TRUE, do.plots = TRUE)
@@ -41,7 +41,8 @@ other constraints (\code{forbidden} and \code{mask.sp})}
 \item{regularization}{a two-element numeric vector defining the regularization lambdas used for
 environmental coefficients and for species interactions respectively. See details.}
 
-\item{regularization.type}{one of "lasso" or "ridge", defining the type of penalty to apply.}
+\item{regularization.type}{one of "lasso", "ridge" or "hybrid", defining the type of penalty to apply.
+Type "hybrid" applies ridge penalty to environmental coefficients and LASSO to interaction coefficients.}
 
 \item{penalty}{the penalty applied to the number of species interactions to include, during variable selection.}
 

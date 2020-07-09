@@ -70,11 +70,14 @@
 #' @useDynLib eicm, .registration = TRUE, .fixes = "SR_"
 eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	n.latent=0, forbidden=NULL, mask.sp=NULL, exclude.prevalence=0,		# formulation
-	regularization=c(ifelse(n.latent > 0, 6, 0.5), ifelse(do.selection, 0.5, 0.1)), regularization.type="ridge",				# regularization
+	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",				# regularization
 	penalty=4, theta.threshold=0.5, latent.lambda=1, fit.all.with.latents=TRUE,
 	popsize.sel=2, n.cores=parallel::detectCores(),
 	true.model=NULL, do.selection=TRUE, do.plots=TRUE) {
 
+	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))
+		stop("Regularization type must be one of: ridge, lasso, hybrid")
+		
 # TODO adjust regularization defaults, which apparently depend of the # of samples
 	attr(regularization, "type") <- regularization.type
 	
@@ -159,8 +162,10 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 		if(do.plots) {
 			monitor.function <- function(model, plot.interactions) {
 				return(
-					coefficientComparisonPlot(model, true.model, nenv.to.plot=ncol(fitted.model$model$env) - 1, nlatent.to.plot=0,
-						plot.intercept=TRUE, excluded.interactions=abs(fitted.model$model$sp) < theta.threshold, plot.interactions=plot.interactions)
+					coefficientComparisonPlot(model, true.model, nenv.to.plot=ncol(fitted.model$model$env) - 1,
+						nlatent.to.plot=0, plot.intercept=TRUE,
+						excluded.interactions=abs(fitted.model$model$sp) < theta.threshold,
+						plot.interactions=plot.interactions)
 				)
 			}
 			selection.monitor <- function(object, bestmodel, worstmodel) {monitor.function(bestmodel, plot.interactions=TRUE)}

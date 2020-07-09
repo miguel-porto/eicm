@@ -18,7 +18,8 @@
 #' @param ... further arguments to pass to \code{\link{coefficientComparisonPlot}} or other plotting functions.
 #'
 #' @seealso \code{\link{coefficientComparisonPlot}}, \code{\link{confint.eicm}}
-#' @return NULL.
+#' @return If \code{true.model} is provided and \code{type="coefficients"}, returns a named vector with 
+#' accuracy statistics (invisibly). Otherwise, NULL.
 #' @export
 plot.eicm <- function(x, type=ifelse(is.null(true.model), "network", "coefficients"), true.model=NULL, ...) {
 	if(is.na(pmatch(type, c("confint", "profile", "network", "coefficients"))))
@@ -39,11 +40,11 @@ plot.eicm <- function(x, type=ifelse(is.null(true.model), "network", "coefficien
 				plot.profile.eicm(x$profile[[i]], ...)
 			}
 		}, {
-			plot.eicm.matrix(x$model, type="network", ...)
+			return(invisible(plot.eicm.matrix(x$model, type="network", ...)))
 		})
 	} else {
 		if(!inherits(true.model, "eicm")) stop("true.model must be of class 'eicm'")
-		plot.eicm.matrix(x$model, true.model, type=type, ...)
+		return(invisible(plot.eicm.matrix(x$model, true.model, type=type, ...)))
 	}
 	invisible()
 }

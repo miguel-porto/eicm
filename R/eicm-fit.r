@@ -27,7 +27,8 @@
 #'        fitting when there are previous estimates available.
 #' @param regularization a two-element numeric vector defining the regularization lambdas used for
 #'        environmental coefficients and for species interactions respectively. See details.
-#' @param regularization.type one of "lasso" or "ridge", defining the type of penalty to apply.
+#' @param regularization.type one of "lasso", "ridge" or "hybrid", defining the type of penalty to apply.
+#'        Type "hybrid" applies ridge penalty to environmental coefficients and LASSO to interaction coefficients.
 #' @param fast a logical defining whether to do a fast - but less accurate - estimation, or a normal estimation.
 #' @param optim.method the optimization function to use. Should be set to the default.
 #' @param optim.control the optimization parameters to use. Should be set to the defaults.
@@ -72,13 +73,16 @@
 #' @export
 eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	n.latent=0, forbidden=NULL, mask.sp=NULL, exclude.prevalence=0, options=NULL, initial.values=NULL,
-	regularization=c(ifelse(n.latent > 0, 0.5, 0), 0.5), regularization.type="ridge",
+	regularization=c(ifelse(n.latent > 0, 0.5, 0), 1), regularization.type="hybrid",
 	fast=FALSE,
 	optim.method=ifelse(fast, "ucminf", "L-BFGS-B"),
 	optim.control=if(fast) list(trace=1, maxeval=10000, gradstep=c(0.001, 0.001), grtol=0.1) else
 		list(trace=1, maxit=10000, ndeps=0.0001)
 	) {
 	
+	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))
+		stop("Regularization type must be one of: ridge, lasso, hybrid")
+		
 	if(is.null(env))
 		env <- matrix(0, nrow=nrow(occurrences), ncol=0)
 		
