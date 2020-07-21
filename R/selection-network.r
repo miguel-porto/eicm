@@ -3,6 +3,10 @@
 # or assuming a reduced model if masksp is provided.
 # popsize.sel can accept and expression where n is number of needed individuals to have one individual per bit.
 # This function is not yet "export quality" but it may be exported some day.
+# select.direction:
+# TRUE to have ternary bits, hence selecting one direction OR the other.
+# FALSE to have both directions as separate bits, hence both directions can be included in the selected network.
+# Note there is no cyclicity test during optimization.
 model.selection.network <- function(object, regularization, regularization.type, penalty,
 	masksp=NULL, forbidden=NULL, exclude.prevalence=0,
 	estimate.latents=FALSE,	select.direction=TRUE, 
