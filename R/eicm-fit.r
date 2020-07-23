@@ -32,6 +32,7 @@
 #' @param regularization.type one of "lasso", "ridge" or "hybrid", defining the type of penalty to apply.
 #'        Type "hybrid" applies ridge penalty to environmental coefficients and LASSO to interaction coefficients.
 #' @param fast a logical defining whether to do a fast - but less accurate - estimation, or a normal estimation.
+#' @param n.cores the number of CPU cores to use in the L-BFGS-B optimization.
 #' @param optim.method the optimization function to use. Should be set to the default.
 #' @param optim.control the optimization parameters to use. Should be set to the defaults.
 #'
@@ -76,9 +77,9 @@
 eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0, options=NULL, initial.values=NULL,
 	regularization=c(ifelse(n.latent > 0, 0.5, 0), 1), regularization.type="hybrid",
-	fast=FALSE,
-	optim.method=ifelse(fast, "ucminf", "L-BFGS-B"),
-	optim.control=if(fast) list(trace=1, maxeval=10000, gradstep=c(0.001, 0.001), grtol=0.1) else
+	fast=FALSE, n.cores=parallel::detectCores(),
+	optim.method="L-BFGS-B",
+	optim.control=if(fast) list(trace=1, maxit=10000, ndeps=0.0001, factr=1e10) else
 		list(trace=1, maxit=10000, ndeps=0.0001)
 	) {
 	
@@ -198,8 +199,20 @@ eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	# Estimate parameters
 	fitted <- switch(optim.method,
 		"L-BFGS-B"={
-			stats::optim(init, single.objective.function, fixed.pars=fixed.pars, method=optim.method, control=optim.control)
+			if(n.cores > 1) {
+				message(sprintf("Optimizing with parallel L-BFGS-B%s", ifelse(fast, ", with approximate likelihood", "")))
+				cls <- parallel::makeCluster(n.cores)
+				tmp <- optimParallel::optimParallel(init, single.objective.function, fixed.pars=fixed.pars,
+					control=optim.control, parallel=list(forward=FALSE, loginfo=FALSE, cl=cls))
+				parallel::stopCluster(cls)
+				tmp
+			} else {
+				message(sprintf("Optimizing with L-BFGS-B%s", ifelse(fast, ", with approximate likelihood", "")))
+				stats::optim(init, single.objective.function, fixed.pars=fixed.pars, method="L-BFGS-B",
+					control=optim.control)
+			}
 		}, "ucminf"={
+			message(sprintf("Optimizing with ucminf%s", ifelse(fast, ", with approximate likelihood", "")))
 			ucminf::ucminf(init, single.objective.function, fixed.pars=fixed.pars, hessian=0, control=optim.control)
 		}
 	)

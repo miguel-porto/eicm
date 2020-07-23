@@ -7,7 +7,7 @@ Authors@R: c(person(given="Miguel", family="Porto",
   person(given="Pedro", family="Beja", comment = c(ORCID="0000-0001-8164-0760"), role="aut"))
 Maintainer: Miguel Porto <mpbertolo@gmail.com>
 Depends: R (>= 2.10)
-Imports: methods, parallel, GA (>= 3.1.1), snow, doSNOW, iterators, pso, ucminf, foreach, graphics
+Imports: methods, parallel, GA (>= 3.1.1), snow, doSNOW, iterators, pso, ucminf, foreach, graphics, optimParallel
 Suggests: igraph, knitr, rmarkdown
 VignetteBuilder: knitr
 Description: Model fitting and species biotic interaction network topology selection for explicit

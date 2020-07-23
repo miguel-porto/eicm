@@ -31,7 +31,9 @@
 #'        the estimated coefficients will be compared in each selection algorithm iteration.
 #' @param popsize.sel the population size for the genetic algorithm, expressed as the factor to multiply
 #'        by the recommended minimum. Ignored if \code{do.selection=FALSE}.
-#' @param n.cores the number of CPU cores to use in the variable selection stage. Ignored if \code{do.selection=FALSE}.
+#' @param n.cores the number of CPU cores to use in the variable selection stage and in the optimization.
+#' @param parallel logical. Whether to use \code{\link{optimParallel::optimParallel}} during optimizations instead of \code{\link{stats::optim}}.
+#'        This can be advantageous for complex problems (say, more than 30 species), but for small problems may be slower.
 #' @param do.selection logical. Conduct the variable selection stage, over species interaction network topology?
 #' @param do.plots logical. Plot diagnostic and trace plots?
 #'
@@ -72,8 +74,8 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0,		# formulation
 	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",				# regularization
 	penalty=4, theta.threshold=0.5, latent.lambda=1, fit.all.with.latents=TRUE,
-	popsize.sel=2, n.cores=parallel::detectCores(),
-	true.model=NULL, do.selection=TRUE, do.plots=TRUE) {
+	popsize.sel=2, n.cores=parallel::detectCores(), parallel=TRUE,
+	true.model=NULL, do.selection=TRUE, do.plots=TRUE, fast=FALSE) {
 
 	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))
 		stop("Regularization type must be one of: ridge, lasso, hybrid")
@@ -89,7 +91,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 
 		time0 <- system.time(latents.only <- fit.latents(env=env, occurrences=occurrences,
 			regularization=c(latent.lambda, 0), regularization.type="ridge",
-			nlat=n.latent, fast=FALSE))
+			nlat=n.latent, fast=FALSE, n.cores=ifelse(parallel, n.cores, 1)))
 
 		# standardize latents and counter-standardize their coefficients TODO do we need this?
 		f <- apply(latents.only$model$samples, 2, stats::sd)
@@ -111,6 +113,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	if(n.latent > 0) {
 		model <- latents.only
 		model$model$samples <- NULL
+		optim.control <- list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 1e11, 1e10))
 		
 		if(fit.all.with.latents) {
 			# fix latent values
@@ -121,7 +124,9 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 				model$data$occurrences, env=model$data$env, traits=traits, intercept=FALSE,
 				n.latent=0, initial.values=model$model,
 				options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
-				fast=TRUE, regularization=regularization, regularization.type=regularization.type))
+				fast=TRUE, n.cores=ifelse(parallel, n.cores, 1),
+				optim.method="L-BFGS-B", optim.control=optim.control,
+				regularization=regularization, regularization.type=regularization.type))
 		} else {
 			message("Fit the model with all interactions, with no latents")
 			# remove estimated latent coefficients from environmental matrix
@@ -132,7 +137,9 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 				occurrences, env=env, traits=traits, intercept=TRUE,
 				n.latent=0, initial.values=model$model,
 				options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
-				fast=TRUE, regularization=regularization, regularization.type=regularization.type))
+				fast=TRUE, n.cores=ifelse(parallel, n.cores, 1),
+				optim.method="L-BFGS-B", optim.control=optim.control,
+				regularization=regularization, regularization.type=regularization.type))
 		}
 
 		if(!is.null(true.model) && nrow(fitted.model$model$env) != nrow(true.model$model$env)) warning("Some species are missing from the estimated model")
@@ -142,7 +149,9 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 		time1 <- system.time(fitted.model <- eicm.fit(occurrences, env=env, traits=traits, intercept=TRUE
 			, n.latent=0,
 			options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
-			fast=TRUE, regularization=regularization, regularization.type=regularization.type))
+			fast=TRUE, n.cores=ifelse(parallel, n.cores, 1),
+			optim.method="L-BFGS-B", optim.control=optim.control,
+			regularization=regularization, regularization.type=regularization.type))
 			
 		latents.only <- fitted.model
 		latents.only$model$sp[, ] <- 0
@@ -238,7 +247,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	time2 <- system.time(var.selection <- model.selection.network(latents.only.copy, regularization=regularization
 		, regularization.type=regularization.type
 		, penalty=penalty, masksp=masksp, select.direction=TRUE, exclude.prevalence=exclude.prevalence
-		, fast=TRUE, optim.method = "ucminf", optim.control = list(trace=0, maxeval=10000, gradstep=c(0.001, 0.001), grtol=0.1)
+		, fast=TRUE, optim.method="ucminf", optim.control=list(trace=0, maxeval=10000, gradstep=c(0.001, 0.001), grtol=0.1)
 		#, fast=FALSE, optim.method = "L-BFGS-B", optim.control = list(trace=0, maxit=10000, ndeps=0.001)
 		, parallel=n.cores
 		, maxit.stagnated=50, pmutation = 0.01, popsize.factor=popsize.sel
@@ -271,7 +280,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 }
 
 # Utility function to estimate latents possibly with given species coefficients
-fit.latents <- function(env, occurrences, regularization, regularization.type, nlat, envcoefs=NULL, spcoefs=NULL, fast=FALSE) {
+fit.latents <- function(env, occurrences, regularization, regularization.type, nlat, envcoefs=NULL, spcoefs=NULL, fast=FALSE, n.cores) {
 	if(is.null(env))
 		env <- matrix(0, nrow=nrow(occurrences), ncol=0)
 
@@ -290,7 +299,7 @@ fit.latents <- function(env, occurrences, regularization, regularization.type, n
 
 	model <- eicm.fit(occurrences, env=env, intercept=TRUE
 		, options=options
-		, fast=fast
+		, fast=fast, n.cores=n.cores
 		, n.latent=nlat		
 		, regularization=regularization, regularization.type=regularization.type)
 	return(model)

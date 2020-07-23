@@ -10,8 +10,9 @@ eicm(occurrences, env = NULL, traits = NULL, intercept = TRUE,
   0.5), 1), regularization.type = "hybrid", penalty = 4,
   theta.threshold = 0.5, latent.lambda = 1,
   fit.all.with.latents = TRUE, popsize.sel = 2,
-  n.cores = parallel::detectCores(), true.model = NULL,
-  do.selection = TRUE, do.plots = TRUE)
+  n.cores = parallel::detectCores(), parallel = TRUE,
+  true.model = NULL, do.selection = TRUE, do.plots = TRUE,
+  fast = FALSE)
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}
@@ -61,7 +62,10 @@ when estimating the preliminary species interactions.}
 \item{popsize.sel}{the population size for the genetic algorithm, expressed as the factor to multiply
 by the recommended minimum. Ignored if \code{do.selection=FALSE}.}
 
-\item{n.cores}{the number of CPU cores to use in the variable selection stage. Ignored if \code{do.selection=FALSE}.}
+\item{n.cores}{the number of CPU cores to use in the variable selection stage and in the optimization.}
+
+\item{parallel}{logical. Whether to use \code{\link{optimParallel::optimParallel}} during optimizations instead of \code{\link{stats::optim}}.
+This can be advantageous for complex problems (say, more than 30 species), but for small problems may be slower.}
 
 \item{true.model}{for validation purposes only: the true model that has generated the data, to which
 the estimated coefficients will be compared in each selection algorithm iteration.}
@@ -69,6 +73,8 @@ the estimated coefficients will be compared in each selection algorithm iteratio
 \item{do.selection}{logical. Conduct the variable selection stage, over species interaction network topology?}
 
 \item{do.plots}{logical. Plot diagnostic and trace plots?}
+
+\item{fast}{a logical defining whether to do a fast - but less accurate - estimation, or a normal estimation.}
 }
 \value{
 A \code{eicm.list} with the following components:
