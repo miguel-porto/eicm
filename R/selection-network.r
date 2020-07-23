@@ -14,7 +14,8 @@ model.selection.network <- function(object, regularization, regularization.type,
 	popsize.factor=1, maxit.stagnated=100,
 	parallel=TRUE, pmutation=0.01, crossover="singlepoint",
 	initial=NULL, mutation.mean=0.1,
-	fast=FALSE, optim.method = "L-BFGS-B", optim.control = list(trace=1, maxit=10000, ndeps=0.001), #, reltol=1e-11
+	fast=TRUE, optim.method="ucminf", optim.control=list(trace=0, maxeval=10000, gradstep=c(0.001, 0.001), grtol=0.1),
+#	optim.method = "L-BFGS-B", optim.control = list(trace=1, maxit=10000, ndeps=0.001), #, reltol=1e-11
 	control = list(), monitor=NULL, max.cached=15000, ...) {
 
 #	set.seed(NULL)
@@ -223,7 +224,7 @@ bitStringToModel.network <- function(string, modelobject, bit.types, corresponde
 		, regularization=regularization, regularization.type=attr(regularization, "type")
 		# if we have a similar model, use it for starting values
 		, initial.values=init.values
-		, fast=fast, optim.method = optim.method, optim.control = optim.control
+		, fast=fast, n.cores=1, optim.method = optim.method, optim.control = optim.control
 		, options=options, ...)
 	
 	rm(options)
