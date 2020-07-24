@@ -38,7 +38,8 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 	})
 }
 
-plotBiNetworkFromMatrices <- function(fitted.distMatrix, true.distMatrix, labels=TRUE, exclude.orphans=TRUE, severe.threshold=0.5) {
+plotBiNetworkFromMatrices <- function(fitted.distMatrix, true.distMatrix, labels=TRUE, exclude.orphans=TRUE,
+	severe.threshold=0.5, layout=TRUE) {
 	if(exclude.orphans) {
 		merge <- true.distMatrix + fitted.distMatrix
 		exclude <- apply(merge != 0, 1, sum) == 0 & apply(merge != 0, 2, sum) == 0
@@ -59,10 +60,12 @@ plotBiNetworkFromMatrices <- function(fitted.distMatrix, true.distMatrix, labels
 	merge[fm1 & !fm2 & abs(truevals) < severe.threshold] <- 4
 	
 	net <- igraph::graph_from_adjacency_matrix(t(merge), mode="upper", weighted="coef", diag=FALSE)
-	
-	oldpar <- graphics::par(no.readonly = TRUE)
-	on.exit(graphics::par(oldpar))
-	graphics::par(mar=c(0, 0, 2, 0))
+
+	if(layout) {	
+		oldpar <- graphics::par(no.readonly = TRUE)
+		on.exit(graphics::par(oldpar))
+		graphics::par(mar=c(0, 0, 2, 0))
+	}
 	igraph::plot.igraph(net, edge.arrow.size=0.5, vertex.shape=ifelse(labels, "none", "circle"),
 		vertex.color="black", vertex.frame.color="white",
 		edge.color=c("red", "gray", "#00aa00", "gray")[igraph::E(net)$coef],
