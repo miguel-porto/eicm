@@ -168,8 +168,30 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 						plot.interactions=plot.interactions)
 				)
 			}
-			selection.monitor <- function(object, bestmodel, worstmodel) {monitor.function(bestmodel, plot.interactions=TRUE)}
-		} else selection.monitor <- NULL
+			selection.monitor <- function(object, bestmodel, worstmodel) {
+				stats <- monitor.function(bestmodel, plot.interactions=TRUE)
+				fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
+				message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | %d TP %d FN %d FP",
+					object@iter, object@time.took, object@cached, object@informed, object@cache.size,
+					fitness.stats[3], fitness.stats[2], fitness.stats[1],
+					stats["correct"], stats["missed"], stats["spurious"]))
+				utils::flush.console()
+			}
+		} else {
+			selection.monitor <- function(object, bestmodel, worstmodel) {
+				stats <- coefficientComparisonPlot(bestmodel, true.model, nenv.to.plot=ncol(fitted.model$model$env) - 1,
+					nlatent.to.plot=0, plot.intercept=TRUE,
+					excluded.interactions=abs(fitted.model$model$sp) < theta.threshold,
+					plot.interactions=TRUE, noplot=TRUE)
+
+				fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
+				message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | %d TP %d FN %d FP",
+					object@iter, object@time.took, object@cached, object@informed, object@cache.size,
+					fitness.stats[3], fitness.stats[2], fitness.stats[1],
+					stats["correct"], stats["missed"], stats["spurious"]))
+				utils::flush.console()
+			}
+		}
 	
 		if(do.plots && !is.null(latents.only)) {
 			grDevices::dev.new(width=12, height=4)
@@ -185,6 +207,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			selection.monitor <- function(object, bestmodel, worstmodel) {
 				if(is.null(bestmodel)) return
 				plot.eicm.matrix(bestmodel, type="network")
+				gaMonitor.eicm(object, bestmodel, worstmodel)
 			}
 		} else selection.monitor <- NULL
 	}
@@ -266,5 +289,14 @@ fit.latents <- function(env, occurrences, regularization, regularization.type, n
 		, n.latent=nlat		
 		, regularization=regularization, regularization.type=regularization.type)
 	return(model)
+}
+
+gaMonitor.eicm <- function(object, bestmodel, worstmodel) {
+	fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
+	nterms.stats <- stats::quantile(apply(object@population, 1, sum), probs=c(0, 0.5, 1))
+	message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | #term %d %d %d",
+		object@iter, object@time.took, object@cached, object@informed, object@cache.size
+		, fitness.stats[3], fitness.stats[2], fitness.stats[1], nterms.stats[1], as.integer(nterms.stats[2]), nterms.stats[3]))
+	utils::flush.console()
 }
 

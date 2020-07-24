@@ -371,8 +371,9 @@ my.ga <- function(
   
       if(is.function(monitor)) {
         monitor(object, evaluation.history[[current.pop.strings[which.max(Fitness)]]], evaluation.history[[current.pop.strings[which.min(Fitness)]]])
+      } else {
+	      gaMonitor.eicm(object, evaluation.history[[current.pop.strings[which.max(Fitness)]]], evaluation.history[[current.pop.strings[which.min(Fitness)]]])
       }
-      gaMonitor.eicm(object, evaluation.history[[current.pop.strings[which.max(Fitness)]]], evaluation.history[[current.pop.strings[which.min(Fitness)]]])
 ############ END CHANGED CODE
       
       if(keepBest) 

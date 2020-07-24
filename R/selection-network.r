@@ -232,13 +232,3 @@ bitStringToModel.network <- function(string, modelobject, bit.types, corresponde
 }
 
 
-gaMonitor.eicm <- function(object, bestmodel, worstmodel) {
-	fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
-	nterms.stats <- stats::quantile(apply(object@population, 1, sum), probs=c(0, 0.5, 1))
-	message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | #term %d %d %d",
-		object@iter, object@time.took, object@cached, object@informed, object@cache.size
-		, fitness.stats[3], fitness.stats[2], fitness.stats[1], nterms.stats[1], as.integer(nterms.stats[2]), nterms.stats[3]))
-	utils::flush.console()
-}
-
-
