@@ -11,7 +11,9 @@
 #'
 #' @inheritParams eicm.data
 #' @param n.latent the number of latent variables to estimate.
-#' @param forbidden a formula defining which species interactions are not to be estimated. See details.
+#' @param forbidden a formula (or list of) defining which species interactions are not to be estimated. See details.
+#'        This constraint is cumulative with other constraints (\code{mask.sp} and \code{exclude.prevalence}).
+#' @param allowed a formula (or list of) defining which species interactions are to be estimated. See details.
 #'        This constraint is cumulative with other constraints (\code{mask.sp} and \code{exclude.prevalence}).
 #' @param mask.sp a scalar or a binary square species x species matrix defining which species interactions to exclude
 #'        (0) or include (1) \emph{a priori}. If a scalar (0 or 1), 0 excludes all interactions, 1 allows all interactions.
@@ -72,7 +74,7 @@
 #' }
 #' @export
 eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
-	n.latent=0, forbidden=NULL, mask.sp=NULL, exclude.prevalence=0, options=NULL, initial.values=NULL,
+	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0, options=NULL, initial.values=NULL,
 	regularization=c(ifelse(n.latent > 0, 0.5, 0), 1), regularization.type="hybrid",
 	fast=FALSE,
 	optim.method=ifelse(fast, "ucminf", "L-BFGS-B"),
@@ -120,21 +122,33 @@ eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	nsamples <- nrow(occurrences)
 	nspecies <- ncol(occurrences)
 	
+	# Interaction exclusions
 	if(!is.null(exclude.prevalence) && exclude.prevalence > 0) {
 		options <- excludePrevalence(options, exclude.prevalence, occurrences)
 #		message(sprintf("Excluded from estimation interactions involving species with %d or less presences, or with %d or more presences.", exclude.prevalence, nsamples - exclude.prevalence))
-		message(sprintf("Excluded from estimation interactions involving species with %d or less presences.", exclude.prevalence))
+		message(sprintf("Excluded from estimation interactions departing from (caused by) species with %d or less presences.", exclude.prevalence))
 	}
 
 	if(is.null(traits))
 		traits <- matrix(ncol=0, nrow=nspecies, dimnames=list(colnames(occurrences), NULL))
-		
+
 	if(!is.null(forbidden)) {
-		tmpmask <- getMaskFromForbidden(forbidden, traits, data=occurrences)
+		tmpmask1 <- getMaskFromForbidden(forbidden, traits, data=occurrences, invert=FALSE)
 		# ensure the mask conforms to the occurrences
-		tmpmask <- tmpmask[colnames(occurrences), colnames(occurrences)]
-		options <- options + list(mask=list(sp=tmpmask))
+		tmpmask1 <- tmpmask1[colnames(occurrences), colnames(occurrences)]
 	}
+
+	if(!is.null(allowed)) {
+		tmpmask2 <- getMaskFromForbidden(allowed, traits, data=occurrences, invert=TRUE)
+		# ensure the mask conforms to the occurrences
+		tmpmask2 <- tmpmask2[colnames(occurrences), colnames(occurrences)]
+	}
+
+	if(exists("tmpmask1"))
+		options <- options + list(mask=list(sp=tmpmask1))
+
+	if(exists("tmpmask2"))
+		options <- options + list(mask=list(sp=tmpmask2))
 
 	if(is.null(options$offset))
 		options$offset <- list(

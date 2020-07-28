@@ -69,7 +69,7 @@
 #' @importClassesFrom GA ga
 #' @useDynLib eicm, .registration = TRUE, .fixes = "SR_"
 eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
-	n.latent=0, forbidden=NULL, mask.sp=NULL, exclude.prevalence=0,		# formulation
+	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0,		# formulation
 	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",				# regularization
 	penalty=4, theta.threshold=0.5, latent.lambda=1, fit.all.with.latents=TRUE,
 	popsize.sel=2, n.cores=parallel::detectCores(),
@@ -120,7 +120,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			time1 <- system.time(fitted.model <- eicm.fit(
 				model$data$occurrences, env=model$data$env, traits=traits, intercept=FALSE,
 				n.latent=0, initial.values=model$model,
-				options=options, forbidden=forbidden, exclude.prevalence=exclude.prevalence,
+				options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
 				fast=TRUE, regularization=regularization, regularization.type=regularization.type))
 		} else {
 			message("Fit the model with all interactions, with no latents")
@@ -131,7 +131,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			time1 <- system.time(fitted.model <- eicm.fit(
 				occurrences, env=env, traits=traits, intercept=TRUE,
 				n.latent=0, initial.values=model$model,
-				options=options, forbidden=forbidden, exclude.prevalence=exclude.prevalence,
+				options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
 				fast=TRUE, regularization=regularization, regularization.type=regularization.type))
 		}
 
@@ -141,7 +141,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 		# fit the model with everything
 		time1 <- system.time(fitted.model <- eicm.fit(occurrences, env=env, traits=traits, intercept=TRUE
 			, n.latent=0,
-			options=options, forbidden=forbidden, exclude.prevalence=exclude.prevalence,
+			options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
 			fast=TRUE, regularization=regularization, regularization.type=regularization.type))
 			
 		latents.only <- fitted.model

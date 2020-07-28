@@ -5,7 +5,7 @@
 \title{Estimate a EICM model}
 \usage{
 eicm.fit(occurrences, env = NULL, traits = NULL, intercept = TRUE,
-  n.latent = 0, forbidden = NULL, mask.sp = NULL,
+  n.latent = 0, forbidden = NULL, allowed = NULL, mask.sp = NULL,
   exclude.prevalence = 0, options = NULL, initial.values = NULL,
   regularization = c(ifelse(n.latent > 0, 0.5, 0), 1),
   regularization.type = "hybrid", fast = FALSE,
@@ -25,7 +25,10 @@ species interactions \emph{a priori}.}
 
 \item{n.latent}{the number of latent variables to estimate.}
 
-\item{forbidden}{a formula defining which species interactions are not to be estimated. See details.
+\item{forbidden}{a formula (or list of) defining which species interactions are not to be estimated. See details.
+This constraint is cumulative with other constraints (\code{mask.sp} and \code{exclude.prevalence}).}
+
+\item{allowed}{a formula (or list of) defining which species interactions are to be estimated. See details.
 This constraint is cumulative with other constraints (\code{mask.sp} and \code{exclude.prevalence}).}
 
 \item{mask.sp}{a scalar or a binary square species x species matrix defining which species interactions to exclude
