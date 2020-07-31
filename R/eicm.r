@@ -110,10 +110,10 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 
 	# fit the full network, so that weak interactions may be discarded
 	# TODO: if theta.threshold==0, we don't need to fit all interactions
+	optim.control <- list(trace=4, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.00001) / .Machine$double.eps)
 	if(n.latent > 0) {
 		model <- latents.only
 		model$model$samples <- NULL
-		optim.control <- list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 1e11, 1e10))
 		
 		if(fit.all.with.latents) {
 			# fix latent values

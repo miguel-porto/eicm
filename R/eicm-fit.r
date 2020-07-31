@@ -201,9 +201,16 @@ eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 		"L-BFGS-B"={
 			if(n.cores > 1) {
 				message(sprintf("Optimizing with parallel L-BFGS-B%s", ifelse(fast, ", with approximate likelihood", "")))
-				cls <- parallel::makeCluster(n.cores)
-				tmp <- optimParallel::optimParallel(init, single.objective.function, fixed.pars=fixed.pars,
-					control=optim.control, parallel=list(forward=FALSE, loginfo=FALSE, cl=cls))
+				if(npars > 10000 & n.cores > 10) {
+					n.cores <- 10
+					message("Decreased number of cores to 10.")
+				}
+				cls <- parallel::makeCluster(n.cores, outfile="")
+#				readline("Ready ")
+#				save(fixed.pars, file="fp")
+#				tmp <- optimParallel::optimParallel(init, single.objective.function, fixed.pars=fixed.pars,
+				tmp <- optimParallelMP2(init, single.objective.function, fixed.pars=fixed.pars,
+					control=optim.control, parallel=list(forward=TRUE, loginfo=FALSE, cl=cls))
 				parallel::stopCluster(cls)
 				tmp
 			} else {
