@@ -74,7 +74,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0,		# formulation
 	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",				# regularization
 	penalty=4, theta.threshold=0.5, latent.lambda=1, fit.all.with.latents=TRUE,
-	popsize.sel=2, n.cores=parallel::detectCores(), parallel=TRUE,
+	popsize.sel=2, n.cores=parallel::detectCores(), parallel=FALSE,
 	true.model=NULL, do.selection=TRUE, do.plots=TRUE, fast=FALSE) {
 
 	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))
@@ -110,7 +110,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 
 	# fit the full network, so that weak interactions may be discarded
 	# TODO: if theta.threshold==0, we don't need to fit all interactions
-	optim.control <- list(trace=4, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.00001) / .Machine$double.eps)
+	optim.control <- list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.00001) / .Machine$double.eps)
 	if(n.latent > 0) {
 		model <- latents.only
 		model$model$samples <- NULL
@@ -300,7 +300,7 @@ fit.latents <- function(env, occurrences, regularization, regularization.type, n
 	model <- eicm.fit(occurrences, env=env, intercept=TRUE
 		, options=options
 		, fast=fast, n.cores=n.cores
-		, n.latent=nlat		
+		, n.latent=nlat
 		, regularization=regularization, regularization.type=regularization.type)
 	return(model)
 }
