@@ -170,12 +170,14 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			}
 			selection.monitor <- function(object, bestmodel, worstmodel) {
 				stats <- monitor.function(bestmodel, plot.interactions=TRUE)
-				fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
-				message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | %d TP %d FN %d FP",
-					object@iter, object@time.took, object@cached, object@informed, object@cache.size,
-					fitness.stats[3], fitness.stats[2], fitness.stats[1],
-					stats["correct"], stats["missed"], stats["spurious"]))
-				utils::flush.console()
+				if(!is.null(object)) {
+					fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
+					message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | %d TP %d FN %d FP",
+						object@iter, object@time.took, object@cached, object@informed, object@cache.size,
+						fitness.stats[3], fitness.stats[2], fitness.stats[1],
+						stats["correct"], stats["missed"], stats["spurious"]))
+					utils::flush.console()
+				}
 			}
 		} else {
 			selection.monitor <- function(object, bestmodel, worstmodel) {
@@ -183,13 +185,14 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 					nlatent.to.plot=0, plot.intercept=TRUE,
 					excluded.interactions=abs(fitted.model$model$sp) < theta.threshold,
 					plot.interactions=TRUE, noplot=TRUE)
-
-				fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
-				message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | %d TP %d FN %d FP",
-					object@iter, object@time.took, object@cached, object@informed, object@cache.size,
-					fitness.stats[3], fitness.stats[2], fitness.stats[1],
-					stats["correct"], stats["missed"], stats["spurious"]))
-				utils::flush.console()
+				if(!is.null(object)) {
+					fitness.stats <- stats::quantile(stats::na.exclude(object@fitness), probs=c(0, 0.5, 1))
+					message(sprintf("\rIt %d (%.0fs, ciT %d+%d/%d) | Fit %.1f %.1f %.1f | %d TP %d FN %d FP",
+						object@iter, object@time.took, object@cached, object@informed, object@cache.size,
+						fitness.stats[3], fitness.stats[2], fitness.stats[1],
+						stats["correct"], stats["missed"], stats["spurious"]))
+					utils::flush.console()
+				}
 			}
 		}
 	
@@ -207,7 +210,9 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			selection.monitor <- function(object, bestmodel, worstmodel) {
 				if(is.null(bestmodel)) return
 				plot.eicm.matrix(bestmodel, type="network")
-				gaMonitor.eicm(object, bestmodel, worstmodel)
+				if(!is.null(object)) {
+					gaMonitor.eicm(object, bestmodel, worstmodel)
+				}
 			}
 		} else selection.monitor <- NULL
 	}
