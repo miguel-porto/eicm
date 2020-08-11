@@ -114,7 +114,6 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	if(n.latent > 0) {
 		model <- latents.only
 		model$model$samples <- NULL
-		optim.control <- list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 1e11, 1e10))
 		
 		if(fit.all.with.latents) {
 			# fix latent values

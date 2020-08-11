@@ -4,7 +4,7 @@
 \alias{plot.eicm.list}
 \title{Quick plot EICM results}
 \usage{
-plot.eicm.list(x, type = ifelse(is.null(true.model), "network",
+\method{plot}{eicm.list}(x, type = ifelse(is.null(true.model), "network",
   "coefficients"), true.model = NULL, ...)
 }
 \arguments{

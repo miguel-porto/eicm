@@ -4,7 +4,7 @@
 \alias{plot.confint.eicm}
 \title{Plot EICM estimates and confidence intervals}
 \usage{
-plot.confint.eicm(x, truemodel = NULL, ...)
+\method{plot}{confint.eicm}(x, truemodel = NULL, ...)
 }
 \arguments{
 \item{x}{a eicm.confint object}
