@@ -1,4 +1,5 @@
-plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "network", "coefficients"), ...) {
+plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "network", "coefficients"),
+	labels=TRUE, exclude.orphans=TRUE, ...) {
 	switch(pmatch(type, c("coefficients", "network")), {
 		coefficientComparisonPlot(x, true.model=true.model, ...)
 	}, {
@@ -9,8 +10,10 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 		
 		if(missing(true.model)) {
 			distMatrix <- x$sp
-			exclude <- apply(distMatrix != 0, 1, sum) == 0 & apply(distMatrix != 0, 2, sum) == 0
-		#			distMatrix <- t(distMatrix[!exclude, !exclude])
+			if(exclude.orphans) {
+				exclude <- apply(distMatrix != 0, 1, sum) == 0 & apply(distMatrix != 0, 2, sum) == 0
+				distMatrix <- t(distMatrix[!exclude, !exclude])
+			}
 			distMatrix <- t(distMatrix)
 			if(ncol(distMatrix) < 2) return
 			net <- igraph::graph_from_adjacency_matrix(as.matrix(distMatrix), mode="directed", weighted="coef", diag=FALSE)
@@ -20,20 +23,21 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 
 			graphics::par(mar=rep(0, 4))
 			if(is.null(igraph::E(net)$coef)) {
-				igraph::plot.igraph(net, edge.arrow.size=0.8, vertex.shape="none"
-					, edge.label.family="Sans", vertex.size=5
-					, layout=igraph::layout_with_fr
-					, vertex.label=igraph::V(net)$name, vertex.label.color="black")
+				igraph::plot.igraph(net, edge.arrow.size=0.8, vertex.shape=ifelse(labels, "none", "circle"),
+					edge.label.family="Sans", vertex.size=5,
+					layout=igraph::layout_with_fr,
+					vertex.label=if(labels) names(igraph::V(net)) else NA, vertex.label.color="black")
 			} else {
 				igraph::E(net)$width <- (abs(igraph::E(net)$coef) + 0.4) * 2
-				igraph::plot.igraph(net, edge.arrow.size=0.8, vertex.shape="none", edge.color=ifelse(igraph::E(net)$coef > 0, "#5555ffff", "#ff5555ff")
-					, edge.label.family="Sans", vertex.size=5
-					, layout=igraph::layout_with_fr
-					, vertex.label=igraph::V(net)$name, vertex.label.color="black")
+				igraph::plot.igraph(net, edge.arrow.size=0.8, vertex.shape=ifelse(labels, "none", "circle"),
+					edge.color=ifelse(igraph::E(net)$coef > 0, "#5555ffff", "#ff5555ff"),
+					edge.label.family="Sans", vertex.size=5,
+					layout=igraph::layout_with_fr,
+					vertex.label=if(labels) names(igraph::V(net)) else NA, vertex.label.color="black")
 			}
 		} else {
 			if(!inherits(true.model, "eicm")) stop("true.model must be of class 'eicm'")
-			plotBiNetworkFromMatrices(x$sp, true.model$model$sp, ...)
+			plotBiNetworkFromMatrices(x$sp, true.model$model$sp, labels=labels, exclude.orphans=exclude.orphans, ...)
 		}
 	})
 }
