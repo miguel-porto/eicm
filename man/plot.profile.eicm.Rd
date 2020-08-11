@@ -4,7 +4,7 @@
 \alias{plot.profile.eicm}
 \title{Plot EICM likelihood profile}
 \usage{
-\method{plot}{profile.eicm}(x, level = 0.99, ...)
+plot.profile.eicm(x, level = 0.99, ...)
 }
 \arguments{
 \item{x}{a profile.eicm object, created with \code{\link{profile.eicm}}.}

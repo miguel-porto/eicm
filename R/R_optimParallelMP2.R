@@ -228,7 +228,7 @@ print(object.size(ndeps_mat))
     #parallel::clusterExport(parallel$cl, "e", list2env(list(e=e)))
     fixed.pars <- dots$fixed.pars
     parallel::clusterExport(parallel$cl, c("fn", "gr", "fixed.pars"), environment())
-readline(5)
+#readline(5)
     if(!is.null(gr)){
         exprList <- getExprGr(fn=fn, gr=gr, dots=dots)
     } else {
@@ -254,7 +254,7 @@ readline(5)
                     }
                 }
                 parMat <- cbind(parMat, par)
-    print(object.size(parMat))
+#    print(object.size(parMat))
                 parallel::clusterExport(parallel$cl, "parMat", list2env(list(parMat=parMat)))
                 #parallel::clusterEvalQ(parallel$cl, assign("parMat", parMat, envir=e))
                 ev <- unname(unlist(parallel::parLapply(parallel$cl, exprList, eval)))

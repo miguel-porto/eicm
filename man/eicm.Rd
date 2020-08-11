@@ -10,7 +10,11 @@ eicm(occurrences, env = NULL, traits = NULL, intercept = TRUE,
   0.5), 1), regularization.type = "hybrid", penalty = 4,
   theta.threshold = 0.5, latent.lambda = 1,
   fit.all.with.latents = TRUE, popsize.sel = 2,
+<<<<<<< HEAD
   n.cores = parallel::detectCores(), parallel = FALSE,
+=======
+  n.cores = parallel::detectCores(), parallel = TRUE,
+>>>>>>> fa9afe0296b26a70d1e84e688f8bb468b0b73662
   true.model = NULL, do.selection = TRUE, do.plots = TRUE,
   fast = FALSE)
 }
