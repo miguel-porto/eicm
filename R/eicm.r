@@ -32,8 +32,8 @@
 #' @param popsize.sel the population size for the genetic algorithm, expressed as the factor to multiply
 #'        by the recommended minimum. Ignored if \code{do.selection=FALSE}.
 #' @param n.cores the number of CPU cores to use in the variable selection stage and in the optimization.
-#' @param parallel logical. Whether to use \code{\link{optimParallel::optimParallel}} during optimizations instead of \code{\link{stats::optim}}.
-#'        This can be advantageous for complex problems (say, more than 30 species), but for small problems may be slower.
+#' @param parallel logical. Whether to use \code{\link[optimParallel]{optimParallel}} during optimizations
+#'        instead of \code{\link[stats]{optim}}.
 #' @param do.selection logical. Conduct the variable selection stage, over species interaction network topology?
 #' @param do.plots logical. Plot diagnostic and trace plots?
 #'

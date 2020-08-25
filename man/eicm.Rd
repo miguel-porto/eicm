@@ -64,8 +64,8 @@ by the recommended minimum. Ignored if \code{do.selection=FALSE}.}
 
 \item{n.cores}{the number of CPU cores to use in the variable selection stage and in the optimization.}
 
-\item{parallel}{logical. Whether to use \code{\link{optimParallel::optimParallel}} during optimizations instead of \code{\link{stats::optim}}.
-This can be advantageous for complex problems (say, more than 30 species), but for small problems may be slower.}
+\item{parallel}{logical. Whether to use \code{\link[optimParallel]{optimParallel}} during optimizations
+instead of \code{\link[stats]{optim}}.}
 
 \item{true.model}{for validation purposes only: the true model that has generated the data, to which
 the estimated coefficients will be compared in each selection algorithm iteration.}

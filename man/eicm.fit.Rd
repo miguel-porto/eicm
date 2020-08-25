@@ -8,10 +8,10 @@ eicm.fit(occurrences, env = NULL, traits = NULL, intercept = TRUE,
   n.latent = 0, forbidden = NULL, allowed = NULL, mask.sp = NULL,
   exclude.prevalence = 0, options = NULL, initial.values = NULL,
   regularization = c(ifelse(n.latent > 0, 0.5, 0), 1),
-  regularization.type = "hybrid", fast = FALSE,
-  n.cores = parallel::detectCores(), optim.method = "L-BFGS-B",
-  optim.control = if (fast) list(trace = 1, maxit = 10000, ndeps = 1e-04,
-  factr = 1e+10) else list(trace = 1, maxit = 10000, ndeps = 1e-04))
+  regularization.type = "hybrid", fast = FALSE, n.cores = 1,
+  optim.method = "L-BFGS-B", optim.control = list(trace = 1, maxit =
+  10000, ndeps = 1e-04, factr = ifelse(fast, 1e-04,
+  1e-05)/.Machine$double.eps))
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}
@@ -55,7 +55,8 @@ Type "hybrid" applies ridge penalty to environmental coefficients and LASSO to i
 
 \item{fast}{a logical defining whether to do a fast - but less accurate - estimation, or a normal estimation.}
 
-\item{n.cores}{the number of CPU cores to use in the L-BFGS-B optimization.}
+\item{n.cores}{the number of CPU cores to use in the L-BFGS-B optimization. This may be reduced to prevent
+excessive memory usage.}
 
 \item{optim.method}{the optimization function to use. Should be set to the default.}
 

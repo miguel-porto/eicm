@@ -32,7 +32,8 @@
 #' @param regularization.type one of "lasso", "ridge" or "hybrid", defining the type of penalty to apply.
 #'        Type "hybrid" applies ridge penalty to environmental coefficients and LASSO to interaction coefficients.
 #' @param fast a logical defining whether to do a fast - but less accurate - estimation, or a normal estimation.
-#' @param n.cores the number of CPU cores to use in the L-BFGS-B optimization.
+#' @param n.cores the number of CPU cores to use in the L-BFGS-B optimization. This may be reduced to prevent
+#'        excessive memory usage.
 #' @param optim.method the optimization function to use. Should be set to the default.
 #' @param optim.control the optimization parameters to use. Should be set to the defaults.
 #'
@@ -77,12 +78,11 @@
 eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0, options=NULL, initial.values=NULL,
 	regularization=c(ifelse(n.latent > 0, 0.5, 0), 1), regularization.type="hybrid",
-	fast=FALSE, n.cores=parallel::detectCores(),
+	fast=FALSE, n.cores=1,
 	optim.method="L-BFGS-B",
-	optim.control=if(fast) list(trace=1, maxit=10000, ndeps=0.0001, factr=1e10) else
-		list(trace=1, maxit=10000, ndeps=0.0001)
+	optim.control=list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.00001) / .Machine$double.eps)
 	) {
-	
+
 	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))
 		stop("Regularization type must be one of: ridge, lasso, hybrid")
 		
@@ -197,19 +197,21 @@ eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 		optim.control$ndeps <- rep(optim.control$ndeps, npars)
 
 	# Estimate parameters
+	tmp <- max(1, min(n.cores, floor(2 / (npars * npars * 8 / (1024^3)))))
+	if(n.cores != tmp) {
+		n.cores <- tmp
+		message(sprintf("Decreased number of cores to %d.", tmp))
+	}
 	fitted <- switch(optim.method,
 		"L-BFGS-B"={
 			if(n.cores > 1) {
 				message(sprintf("Optimizing with parallel L-BFGS-B%s", ifelse(fast, ", with approximate likelihood", "")))
-				if(npars > 10000 & n.cores > 10) {
-					n.cores <- 10
-					message("Decreased number of cores to 10.")
-				}
+				# currently, optimParallel does badly with very large problems.
+				# adjust n.cores to account for its memory usage.
+				# this is just a very approximate computation of the required memory!
 				cls <- parallel::makeCluster(n.cores, outfile="")
-#				readline("Ready ")
-#				save(fixed.pars, file="fp")
-#				tmp <- optimParallel::optimParallel(init, single.objective.function, fixed.pars=fixed.pars,
-				tmp <- optimParallelMP2(init, single.objective.function, fixed.pars=fixed.pars,
+#				tmp <- optimParallelMP2(init, single.objective.function, fixed.pars=fixed.pars,
+				tmp <- optimParallel::optimParallel(init, single.objective.function, fixed.pars=fixed.pars,
 					control=optim.control, parallel=list(forward=TRUE, loginfo=FALSE, cl=cls))
 				parallel::stopCluster(cls)
 				tmp
