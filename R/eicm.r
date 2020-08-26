@@ -36,6 +36,8 @@
 #'        instead of \code{\link[stats]{optim}}.
 #' @param do.selection logical. Conduct the variable selection stage, over species interaction network topology?
 #' @param do.plots logical. Plot diagnostic and trace plots?
+#' @param refit.selected logical. Refit with exact estimates the best model after network selection? Note that,
+#'        for performance reasons, the models fit during the network selection stage use an approximate likelihood.
 #'
 #' @return A \code{eicm.list} with the following components:
 #' \describe{
@@ -75,7 +77,8 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",				# regularization
 	penalty=4, theta.threshold=0.5, latent.lambda=1, fit.all.with.latents=TRUE,
 	popsize.sel=2, n.cores=parallel::detectCores(), parallel=FALSE,
-	true.model=NULL, do.selection=TRUE, do.plots=TRUE, fast=FALSE) {
+	true.model=NULL, do.selection=TRUE, do.plots=TRUE, fast=FALSE,
+	refit.selected=TRUE) {
 
 	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))
 		stop("Regularization type must be one of: ridge, lasso, hybrid")
@@ -263,6 +266,14 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	)
 	attr(selected.model, "regularization") <- regularization
 	class(selected.model) <- "eicm"
+
+	if(refit.selected) {	
+		selected.model <- eicm.fit(occurrences=selected.model$data$occurrences, env=selected.model$data$env,
+			traits=selected.model$data$traits, options=selected.model$model$options, n.latent=0
+			regularization=attr(selected.model, "regularization"),
+			regularization.type=attr(attr(m$selected.model, "regularization"), "type"),
+			fast=FALSE, n.cores=n.cores)
+	}
 
 	if(is.function(selection.monitor))
 		selection.monitor(NULL, selected.model$model, NULL)
