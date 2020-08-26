@@ -258,7 +258,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	selected.model <- var.selection@allEvaluations[[paste(bits, collapse="")]]
 
 	selected.model <- list(
-		data=eicm.data(occurrences=occurrences, env=env)
+		data=eicm.data(occurrences=occurrences, env=latents.only.copy$data$env)
 		, model=eicm.matrix(selected.model$env, sp.coefs=selected.model$sp, latent=selected.model$samples, options=selected.model$options)
 	)
 	attr(selected.model, "regularization") <- regularization

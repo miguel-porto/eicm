@@ -169,7 +169,7 @@ plot.true.estimated <- function(estimated.model.coefs, true.model, time.took=NUL
 		if(legend) {
 			legend("topleft", c(
 				sprintf("True positives (%d)", stats.correct),
-				sprintf("Wrong direction (%d)", stats.wrongdir),
+				sprintf("of which wrong direction (%d)", stats.wrongdir),
 				ifelse(is.null(stats.excluded),
 					sprintf("False negatives (%d)", stats.missed) ,
 					sprintf("False negatives (%d) (%d hard)", stats.missed, stats.excluded)),
