@@ -80,7 +80,7 @@ eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	regularization=c(ifelse(n.latent > 0, 0.5, 0), 1), regularization.type="hybrid",
 	fast=FALSE, n.cores=1,
 	optim.method="L-BFGS-B",
-	optim.control=list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.00001) / .Machine$double.eps)
+	optim.control=list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.000001) / .Machine$double.eps)
 	) {
 
 	if(!(regularization.type %in% c("ridge", "lasso", "hybrid")))

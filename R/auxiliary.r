@@ -10,7 +10,7 @@
 print.eicm.matrix <- function(x, ...) {
 	cat(
 		sprintf("EICM model with:\nSpecies: %d\nEnvironmental variables: %d\nSamples: %d\nLatent variables: %d\n",
-			ncol(x$sp), ncol(x$env), nrow(x$env), ncol(x$samples)))
+			ncol(x$sp), ncol(x$env), nrow(x$samples), ncol(x$samples)))
 	cat("Environmental coefficients (head)\n")
 	print(utils::head(x$env))
 	cat("\nInteraction coefficients (head)\n")

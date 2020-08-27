@@ -11,7 +11,7 @@ eicm.fit(occurrences, env = NULL, traits = NULL, intercept = TRUE,
   regularization.type = "hybrid", fast = FALSE, n.cores = 1,
   optim.method = "L-BFGS-B", optim.control = list(trace = 1, maxit =
   10000, ndeps = 1e-04, factr = ifelse(fast, 1e-04,
-  1e-05)/.Machine$double.eps))
+  1e-06)/.Machine$double.eps))
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}

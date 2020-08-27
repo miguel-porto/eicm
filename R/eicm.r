@@ -113,7 +113,6 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 
 	# fit the full network, so that weak interactions may be discarded
 	# TODO: if theta.threshold==0, we don't need to fit all interactions
-	optim.control <- list(trace=1, maxit=10000, ndeps=0.0001, factr=ifelse(fast, 0.0001, 0.00001) / .Machine$double.eps)
 	if(n.latent > 0) {
 		model <- latents.only
 		model$model$samples <- NULL
@@ -128,7 +127,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 				n.latent=0, initial.values=model$model,
 				options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
 				fast=TRUE, n.cores=ifelse(parallel, n.cores, 1),
-				optim.method="L-BFGS-B", optim.control=optim.control,
+				optim.method="L-BFGS-B",
 				regularization=regularization, regularization.type=regularization.type))
 		} else {
 			message("Fit the model with all interactions, with no latents")
@@ -141,7 +140,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 				n.latent=0, initial.values=model$model,
 				options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
 				fast=TRUE, n.cores=ifelse(parallel, n.cores, 1),
-				optim.method="L-BFGS-B", optim.control=optim.control,
+				optim.method="L-BFGS-B",
 				regularization=regularization, regularization.type=regularization.type))
 		}
 
@@ -153,7 +152,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			, n.latent=0,
 			options=options, forbidden=forbidden, allowed=allowed, exclude.prevalence=exclude.prevalence,
 			fast=TRUE, n.cores=ifelse(parallel, n.cores, 1),
-			optim.method="L-BFGS-B", optim.control=optim.control,
+			optim.method="L-BFGS-B",
 			regularization=regularization, regularization.type=regularization.type))
 			
 		latents.only <- fitted.model
@@ -269,7 +268,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 
 	if(refit.selected) {	
 		selected.model <- eicm.fit(occurrences=selected.model$data$occurrences, env=selected.model$data$env,
-			traits=selected.model$data$traits, options=selected.model$model$options, n.latent=0
+			traits=selected.model$data$traits, options=selected.model$model$options, n.latent=0,
 			regularization=attr(selected.model, "regularization"),
 			regularization.type=attr(attr(m$selected.model, "regularization"), "type"),
 			fast=FALSE, n.cores=n.cores)

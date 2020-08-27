@@ -12,7 +12,7 @@ eicm(occurrences, env = NULL, traits = NULL, intercept = TRUE,
   fit.all.with.latents = TRUE, popsize.sel = 2,
   n.cores = parallel::detectCores(), parallel = FALSE,
   true.model = NULL, do.selection = TRUE, do.plots = TRUE,
-  fast = FALSE)
+  fast = FALSE, refit.selected = TRUE)
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}
@@ -75,6 +75,9 @@ the estimated coefficients will be compared in each selection algorithm iteratio
 \item{do.plots}{logical. Plot diagnostic and trace plots?}
 
 \item{fast}{a logical defining whether to do a fast - but less accurate - estimation, or a normal estimation.}
+
+\item{refit.selected}{logical. Refit with exact estimates the best model after network selection? Note that,
+for performance reasons, the models fit during the network selection stage use an approximate likelihood.}
 }
 \value{
 A \code{eicm.list} with the following components:
