@@ -98,8 +98,8 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 
 		# standardize latents and counter-standardize their coefficients TODO do we need this?
 		f <- apply(latents.only$model$samples, 2, stats::sd)
-		latents.only$data$env[, -1] <- sweep(latents.only$data$env[, -1, drop=FALSE], 2, f, "/")
-		latents.only$model$env[, -1] <- sweep(latents.only$model$env[, -1, drop=FALSE], 2, f, "*")
+		latents.only$data$env[, names(f)] <- sweep(latents.only$data$env[, names(f), drop=FALSE], 2, f, "/")
+		latents.only$model$env[, names(f)] <- sweep(latents.only$model$env[, names(f), drop=FALSE], 2, f, "*")
 		latents.only$model$samples <- sweep(latents.only$model$samples, 2, f, "/")
 		
 		if(!is.null(true.model) && do.plots) {
@@ -270,7 +270,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 		selected.model <- eicm.fit(occurrences=selected.model$data$occurrences, env=selected.model$data$env,
 			traits=selected.model$data$traits, options=selected.model$model$options, n.latent=0,
 			regularization=attr(selected.model, "regularization"),
-			regularization.type=attr(attr(m$selected.model, "regularization"), "type"),
+			regularization.type=attr(attr(selected.model, "regularization"), "type"),
 			fast=FALSE, n.cores=n.cores)
 	}
 
