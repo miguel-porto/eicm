@@ -5,7 +5,7 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 	}, {
 		if (!requireNamespace("igraph", quietly = TRUE)) {
 			message("For a network plot, install 'igraph'")
-			return
+			return(invisible(NULL))
 		}
 		
 		if(missing(true.model)) {
@@ -15,7 +15,7 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 				distMatrix <- t(distMatrix[!exclude, !exclude])
 			}
 			distMatrix <- t(distMatrix)
-			if(ncol(distMatrix) < 2) return
+			if(ncol(distMatrix) < 2) return(invisible(NULL))
 			net <- igraph::graph_from_adjacency_matrix(as.matrix(distMatrix), mode="directed", weighted="coef", diag=FALSE)
 
 			oldpar <- graphics::par(no.readonly = TRUE)

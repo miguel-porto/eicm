@@ -219,7 +219,7 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 	} else {
 		if(do.plots) {
 			selection.monitor <- function(object, bestmodel, worstmodel) {
-				if(is.null(bestmodel)) return
+				if(is.null(bestmodel)) return(invisible(NULL))
 				plot.eicm.matrix(bestmodel, type="network")
 				if(!is.null(object)) {
 					gaMonitor.eicm(object, bestmodel, worstmodel)
