@@ -5,7 +5,8 @@
 \title{Fit and select an Explicit Interaction Community Model (EICM)}
 \usage{
 eicm(occurrences, env = NULL, traits = NULL, intercept = TRUE,
-  n.latent = 0, forbidden = NULL, allowed = NULL, mask.sp = NULL,
+  n.latent = 0, rotate.latents = FALSE, scale.latents = TRUE,
+  forbidden = NULL, allowed = NULL, mask.sp = NULL,
   exclude.prevalence = 0, regularization = c(ifelse(n.latent > 0, 6,
   0.5), 1), regularization.type = "hybrid", penalty = 4,
   theta.threshold = 0.5, latent.lambda = 1,
@@ -25,6 +26,12 @@ species interactions \emph{a priori}.}
 \item{intercept}{logical specifying whether to add a column for the species-level intercepts.}
 
 \item{n.latent}{the number of latent variables to estimate.}
+
+\item{rotate.latents}{logical. Rotate the estimated latent variable values (the values of the
+latents at each sample) in the first step with PCA? Defaults to FALSE.}
+
+\item{scale.latents}{logical. Standardize the estimated latent variable values (the values of the
+latents at each sample) in the first step? Defaults to TRUE.}
 
 \item{forbidden}{a formula (or list of) defining which species interactions are not to be estimated. See details.
 This constraint is cumulative with other constraints (\code{mask.sp} and \code{exclude.prevalence}).}

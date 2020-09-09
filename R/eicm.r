@@ -20,6 +20,10 @@
 #' Missing data in the response matrix is allowed.
 #' 
 #' @inheritParams eicm.fit
+#' @param rotate.latents logical. Rotate the estimated latent variable values (the values of the
+#'        latents at each sample) in the first step with PCA? Defaults to FALSE.
+#' @param scale.latents logical. Standardize the estimated latent variable values (the values of the
+#'        latents at each sample) in the first step? Defaults to TRUE.
 #' @param penalty the penalty applied to the number of species interactions to include, during variable selection.
 #' @param theta.threshold exclude species interactions (from network selection) whose preliminary coefficient (in absolute value)
 #'        is lower than this value. This exclusion criterion is cumulative with the other user-defined exclusions.
@@ -73,8 +77,9 @@
 #' @importClassesFrom GA ga
 #' @useDynLib eicm, .registration = TRUE, .fixes = "SR_"
 eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
-	n.latent=0, forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0,		# formulation
-	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",				# regularization
+	n.latent=0, rotate.latents=FALSE, scale.latents=TRUE,				# latents
+	forbidden=NULL, allowed=NULL, mask.sp=NULL, exclude.prevalence=0,	# formulation
+	regularization=c(ifelse(n.latent > 0, 6, 0.5), 1), regularization.type="hybrid",	# regularization
 	penalty=4, theta.threshold=0.5, latent.lambda=1, fit.all.with.latents=TRUE,
 	popsize.sel=2, n.cores=parallel::detectCores(), parallel=FALSE,
 	true.model=NULL, do.selection=TRUE, do.plots=TRUE, fast=FALSE,
@@ -96,20 +101,35 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 			regularization=c(latent.lambda, 0), regularization.type="ridge",
 			nlat=n.latent, fast=FALSE, n.cores=ifelse(parallel, n.cores, 1)))
 
-		# standardize latents and counter-standardize their coefficients TODO do we need this?
-		f <- apply(latents.only$model$samples, 2, stats::sd)
-		latents.only$data$env[, names(f)] <- sweep(latents.only$data$env[, names(f), drop=FALSE], 2, f, "/")
-		latents.only$model$env[, names(f)] <- sweep(latents.only$model$env[, names(f), drop=FALSE], 2, f, "*")
-		latents.only$model$samples <- sweep(latents.only$model$samples, 2, f, "/")
+		if(scale.latents) {
+			# standardize latents and counter-standardize their coefficients
+			f <- apply(latents.only$model$samples, 2, stats::sd)
+			latents.only$data$env[, names(f)] <- sweep(latents.only$data$env[, names(f), drop=FALSE], 2, f, "/")
+			latents.only$model$env[, names(f)] <- sweep(latents.only$model$env[, names(f), drop=FALSE], 2, f, "*")
+			latents.only$model$samples <- sweep(latents.only$model$samples, 2, f, "/")
+		}
+		
+		if(rotate.latents) {
+			# rotate latent variable values
+			pc <- stats::prcomp(latents.only$model$samples)
+			# now rotate their responses with the same matrix
+			latents.only$model$env[, colnames(latents.only$model$samples)] <- 
+				latents.only$model$env[, colnames(latents.only$model$samples)] %*% pc$rotation
+			# and re-copy the latent values to the env table
+			latents.only$data$env[, colnames(latents.only$model$samples)] <- latents.only$model$samples
+		}
 		
 		if(!is.null(true.model) && do.plots) {
 			grDevices::dev.new(width=12, height=4)
 
 			coefficientComparisonPlot(latents.only$model, true.model, nenv.to.plot=n.latent, nlatent.to.plot=n.latent,
 				plot.intercept=TRUE, plot.interactions=FALSE)
-
 		}
-	}			
+		
+		# By the way, remember that we discard the estimated responses to latent variables.
+		# This first step is just to estimate the latent variable values at each site, everything
+		# else is discarded.
+	}
 
 	# fit the full network, so that weak interactions may be discarded
 	# TODO: if theta.threshold==0, we don't need to fit all interactions
@@ -290,7 +310,8 @@ eicm <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,	# data
 }
 
 # Utility function to estimate latents possibly with given species coefficients
-fit.latents <- function(env, occurrences, regularization, regularization.type, nlat, envcoefs=NULL, spcoefs=NULL, fast=FALSE, n.cores) {
+fit.latents <- function(env, occurrences, regularization, regularization.type, nlat,
+	envcoefs=NULL, spcoefs=NULL, fast=FALSE, n.cores) {
 	if(is.null(env))
 		env <- matrix(0, nrow=nrow(occurrences), ncol=0)
 
@@ -312,6 +333,7 @@ fit.latents <- function(env, occurrences, regularization, regularization.type, n
 		, fast=fast, n.cores=n.cores
 		, n.latent=nlat
 		, regularization=regularization, regularization.type=regularization.type)
+
 	return(model)
 }
 
