@@ -14,11 +14,12 @@
 #' @param noplot logical. Do plots? If TRUE, it will return the accuracy statistics only.
 #' @param env.stats logical. Compute accuracy for environmental predictors?
 #' @param legend logical. Plot legend?
+#' @param ... further arguments to pass to \code{plot}.
 #' @return A vector with accuracy statistics.
 #' @export
 coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent.to.plot=0,
 	plot.interactions=any(model$sp != 0), plot.intercept=FALSE, excluded.interactions=NULL,
-	layout=TRUE, noplot=FALSE, env.stats=TRUE, legend=TRUE) {
+	layout=TRUE, noplot=FALSE, env.stats=TRUE, legend=TRUE, ...) {
 	if(!inherits(model, "eicm.matrix")) stop("Object must be of class 'eicm.matrix'")
 	if(!inherits(true.model, "eicm")) stop("true.model must be of class 'eicm'")
 	mat <- model
@@ -57,7 +58,8 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 	# INTERCEPTS PLOT
 	if(!noplot) {
 		if(plot.intercept) {
-			graphics::plot(I(mat$env[, 1] ) ~ true.model$model$env[, 1], asp=1, bty="l", xlab="True", ylab="Estimated", pch=19, cex=0.75, main="Intercepts")
+			graphics::plot(I(mat$env[, 1] ) ~ true.model$model$env[, 1], asp=1, bty="l",
+				xlab="True", ylab="Estimated", pch=19, cex=0.75, main="Intercepts", ...)
 			graphics::abline(0, 1, col="gray")
 			graphics::abline(0, -1, col="gray")
 			graphics::abline(v=0, h=0, lty=2)
@@ -74,7 +76,8 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 		x1 <- envbetas[, i]
 		y1 <- mat$env[, ncol(mat$env) - nenv.to.plot + i] * f[i]
 		if(!noplot) {
-			graphics::plot(I(y1) ~ x1, asp=1, bty="l", xlab="True", ylab="Estimated", pch=19, cex=0.75, main="Environmental betas")#, xlim=c(-8, 8), ylim=c(-8, 8))
+			graphics::plot(I(y1) ~ x1, asp=1, bty="l", xlab="True", ylab="Estimated", pch=19,
+				cex=0.75, main="Environmental betas", ...)#, xlim=c(-8, 8), ylim=c(-8, 8))
 #		abline(lm(y1 ~ x1), col="blue")
 			graphics::abline(0, 1, col="gray")
 			graphics::abline(0, -1, col="gray")
@@ -88,7 +91,8 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 		for(i in seq_len(nlatent.to.plot)) {
 			for(j in seq_len(ncol(true.model$data$env) - 1)) {
 				x2 <- true.model$data$env[, j + 1]
-				graphics::plot(I(mat$samples[, i] / f[i]) ~ x2, asp=1, bty="l", xlab=sprintf("True #%d", j), ylab=sprintf("Latent #%d", i), pch=19, cex=0.75)#, xlim=c(-8, 8), ylim=c(-8, 8))
+				graphics::plot(I(mat$samples[, i] / f[i]) ~ x2, asp=1, bty="l", xlab=sprintf("True #%d", j),
+					ylab=sprintf("Latent #%d", i), pch=19, cex=0.75, ...)#, xlim=c(-8, 8), ylim=c(-8, 8))
 				graphics::abline(0, 1, col="gray")
 				graphics::abline(0, -1, col="gray")
 				graphics::abline(v=0, h=0, lty=2)
@@ -120,13 +124,13 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 	}
 	
 	if(plot.interactions)
-		out <- c(out, plot.true.estimated(mat, true.model=true.model, time.took=NULL, excluded.interactions=excluded.interactions, noplot=noplot, layout=layout, legend=legend))
+		out <- c(out, plot.true.estimated(mat, true.model=true.model, time.took=NULL, excluded.interactions=excluded.interactions, noplot=noplot, layout=layout, legend=legend, ...))
 	
 	return(out)
 }
 	
 plot.true.estimated <- function(estimated.model.coefs, true.model, time.took=NULL,
-	estimated.model=NULL, excluded.interactions=NULL, noplot=FALSE, layout=TRUE, legend=TRUE) {
+	estimated.model=NULL, excluded.interactions=NULL, noplot=FALSE, layout=TRUE, legend=TRUE, ...) {
 
 	interactions <- find.correct.spurious(estimated.model.coefs, true.model, excluded.interactions)
 
@@ -158,9 +162,9 @@ plot.true.estimated <- function(estimated.model.coefs, true.model, time.took=NUL
 
 	if(!noplot) {
 		graphics::plot(interactions$nodirection.estimated ~ interactions$nodirection.true, asp=1, type="n", bty="l", col=colors,
-		xlab=ifelse(layout, "True", NA), ylab=ifelse(layout, "Estimated", NA),
-		main=ifelse(layout, "Species Interaction coefficients", NA),
-		pch=19, cex=0.75)
+			xlab=ifelse(layout, "True", NA), ylab=ifelse(layout, "Estimated", NA),
+			main=ifelse(layout, "Species Interaction coefficients", NA),
+			pch=19, cex=0.75, ...)
 
 	#rect(-THRESHOLD, usr[3], THRESHOLD, usr[4], col="gray", border=NA)
 		graphics::abline(0, 1)
