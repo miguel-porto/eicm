@@ -4,9 +4,17 @@
 \alias{as.eicm}
 \title{Define a parameterized EICM model}
 \usage{
-as.eicm(env.coefs, sp.coefs = NULL, latent = NULL, options = NULL,
-  occurrences = NULL, env = NULL, traits = NULL, intercept = TRUE,
-  regularization = NULL)
+as.eicm(
+  env.coefs,
+  sp.coefs = NULL,
+  latent = NULL,
+  options = NULL,
+  occurrences = NULL,
+  env = NULL,
+  traits = NULL,
+  intercept = TRUE,
+  regularization = NULL
+)
 }
 \arguments{
 \item{env.coefs}{the environmental coefficient matrix: a species x variable matrix (including intercept).}

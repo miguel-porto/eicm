@@ -23,4 +23,4 @@ Encoding: UTF-8
 URL: https://github.com/miguel-porto/eicm
 BugReports: https://github.com/miguel-porto/eicm
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

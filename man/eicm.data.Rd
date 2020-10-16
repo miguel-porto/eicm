@@ -4,8 +4,7 @@
 \alias{eicm.data}
 \title{Define a data object for a EICM model}
 \usage{
-eicm.data(occurrences = NULL, env = NULL, traits = NULL,
-  intercept = TRUE)
+eicm.data(occurrences = NULL, env = NULL, traits = NULL, intercept = TRUE)
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}

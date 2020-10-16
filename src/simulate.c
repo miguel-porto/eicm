@@ -68,6 +68,10 @@ SEXP _simulate_community_probability(SEXP _nrepetitions, SEXP _env, SEXP _sp, SE
 				if(excludeSpecies[i]) {
 					filledSpp[currentFilledSp] = i + 1;	// because filledSpp indices are 1-based
 					currentFilledSp ++;
+					// we fill in a priori the presences of the known species
+					int ptr = i * nsamples;
+					for(int sa = 0; sa < nsamples; sa++)
+						presences[sa + ptr] = knownpresences[sa + ptr];
 				}
 			}
 		}
@@ -107,11 +111,9 @@ Rprintf("\n");*/
 				// Species indexes in pthiscycle are 1-based
 				ptr2 = (pthiscycle[sp] - 1) * nsamples;
 
-				if(knownpresences != NULL && excludeSpecies[pthiscycle[sp] - 1]) {
-					for(int sa = 0; sa < nsamples; sa++)
-						presences[sa + ptr2] = knownpresences[sa + ptr2];
+				if(knownpresences != NULL && excludeSpecies[pthiscycle[sp] - 1])
 					continue;
-				}
+
 				// for each sample
 				for(int sa = 0; sa < nsamples; sa++) {
 					// apply the inverse logit function

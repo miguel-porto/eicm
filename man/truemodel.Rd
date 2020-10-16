@@ -4,8 +4,10 @@
 \name{truemodel}
 \alias{truemodel}
 \title{A parameterized EICM model for simulation}
-\format{A 'eicm' object with 2 environmental predictors in 400 samples,
-32 species and 30 species interactions.}
+\format{
+A 'eicm' object with 2 environmental predictors in 400 samples,
+32 species and 30 species interactions.
+}
 \usage{
 truemodel
 }

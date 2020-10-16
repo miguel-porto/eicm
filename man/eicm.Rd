@@ -4,16 +4,33 @@
 \alias{eicm}
 \title{Fit and select an Explicit Interaction Community Model (EICM)}
 \usage{
-eicm(occurrences, env = NULL, traits = NULL, intercept = TRUE,
-  n.latent = 0, rotate.latents = FALSE, scale.latents = TRUE,
-  forbidden = NULL, allowed = NULL, mask.sp = NULL,
-  exclude.prevalence = 0, regularization = c(ifelse(n.latent > 0, 6,
-  0.5), 1), regularization.type = "hybrid", penalty = 4,
-  theta.threshold = 0.5, latent.lambda = 1,
-  fit.all.with.latents = TRUE, popsize.sel = 2,
-  n.cores = parallel::detectCores(), parallel = FALSE,
-  true.model = NULL, do.selection = TRUE, do.plots = TRUE,
-  fast = FALSE, refit.selected = TRUE)
+eicm(
+  occurrences,
+  env = NULL,
+  traits = NULL,
+  intercept = TRUE,
+  n.latent = 0,
+  rotate.latents = FALSE,
+  scale.latents = TRUE,
+  forbidden = NULL,
+  allowed = NULL,
+  mask.sp = NULL,
+  exclude.prevalence = 0,
+  regularization = c(ifelse(n.latent > 0, 6, 0.5), 1),
+  regularization.type = "hybrid",
+  penalty = 4,
+  theta.threshold = 0.5,
+  latent.lambda = 1,
+  fit.all.with.latents = TRUE,
+  popsize.sel = 2,
+  n.cores = parallel::detectCores(),
+  parallel = FALSE,
+  true.model = NULL,
+  do.selection = TRUE,
+  do.plots = TRUE,
+  fast = FALSE,
+  refit.selected = TRUE
+)
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}
