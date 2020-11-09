@@ -12,7 +12,7 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 			distMatrix <- x$sp
 			if(exclude.orphans) {
 				exclude <- apply(distMatrix != 0, 1, sum) == 0 & apply(distMatrix != 0, 2, sum) == 0
-				distMatrix <- t(distMatrix[!exclude, !exclude])
+				distMatrix <- distMatrix[!exclude, !exclude]
 			}
 			distMatrix <- t(distMatrix)
 			if(ncol(distMatrix) < 2) return(invisible(NULL))
