@@ -124,17 +124,31 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 	}
 	
 	if(plot.interactions)
-		out <- c(out, plot.true.estimated(mat, true.model=true.model, time.took=NULL, excluded.interactions=excluded.interactions, noplot=noplot, layout=layout, legend=legend, ...))
+		out <- c(out, interactionPlot(estimated.adjacency.matrix=mat$sp, true.adjacency.matrix=true.model$model$sp,
+			excluded.interactions=excluded.interactions, noplot=noplot, layout=layout, legend=legend, ...))
 	
 	return(out)
 }
 	
-plot.true.estimated <- function(estimated.model.coefs, true.model, time.took=NULL,
-	estimated.model=NULL, excluded.interactions=NULL, noplot=FALSE, layout=TRUE, legend=TRUE, ...) {
+#' Compare two interaction matrices
+#'
+#' Visually compare two interaction (adjacency) matrices and return accuracy statistics
+#'
+#' @param estimated.adjacency.matrix the interaction matrix of the model of interest.
+#' @param true.adjacency.matrix the interaction matrix of the model to compare with (usually, the one used for simulating the data).
+#' @param excluded.interactions a binary species x species matrix telling which interactions were excluded \emph{a priori}.
+#' @param layout logical. Do multi-panel layout?
+#' @param noplot logical. Do plots? If TRUE, it will return the accuracy statistics only.
+#' @param legend logical. Plot legend?
+#' @param ... further arguments to pass to \code{plot}.
+#' @return A vector with accuracy statistics.
+#' @export
+interactionPlot <- function(estimated.adjacency.matrix, true.adjacency.matrix, excluded.interactions=NULL,
+	layout=TRUE, noplot=FALSE, legend=TRUE, ...) {
 
-	interactions <- find.correct.spurious(estimated.model.coefs, true.model, excluded.interactions)
+	interactions <- find.correct.spurious(estimated.adjacency.matrix, true.adjacency.matrix, excluded.interactions)
 
-	colors <- matrix("#ffffff00", ncol=ncol(true.model$model$sp), nrow=nrow(true.model$model$sp))
+	colors <- matrix("#ffffff00", ncol=ncol(true.adjacency.matrix), nrow=nrow(true.adjacency.matrix))
 	colors[interactions$correctEstimation] <- "#00aa00"
 	colors[interactions$spuriousEstimation] <- "red"
 	colors[interactions$missedEstimation] <- "gray"
@@ -184,8 +198,8 @@ plot.true.estimated <- function(estimated.model.coefs, true.model, time.took=NUL
 				)
 			, bty="n", pch=19, col=c("#00aa00", "blue", "gray", "red", NA), cex=0.8)
 		}
-		if(!is.null(estimated.model))
-			graphics::mtext(sprintf("logLik: %.2f", logLik.eicm(estimated.model)), cex=0.7, line=-0.1)
+#		if(!is.null(estimated.model))
+#			graphics::mtext(sprintf("logLik: %.2f", logLik.eicm(estimated.model)), cex=0.7, line=-0.1)
 	}
 
 	FP <- stats.spurious
@@ -247,25 +261,24 @@ keep.only.maximum <- function(mat) {
 	ifelse(w == 1, t(tmp1), tmp2)
 }
 
-find.correct.spurious <- function(estimated.model.coefs, true.model, excluded.interactions=NULL) {
-	opt.mat <- estimated.model.coefs
-	opt.mat$sp <- keep.only.maximum(opt.mat$sp)
+find.correct.spurious <- function(estimated.adjacency.matrix, true.adjacency.matrix, excluded.interactions=NULL) {
+	opt.mat <- keep.only.maximum(estimated.adjacency.matrix)
 #	mar <- par("mar")
 #	par(mar=rep(0, 4))
-#	image(opt.mat$sp, asp=1, zlim=c(-2, 2), col=c(rev(heat.colors(4)), "white", heat.colors(4)))
+#	image(opt.mat, asp=1, zlim=c(-2, 2), col=c(rev(heat.colors(4)), "white", heat.colors(4)))
 #	par(mar=mar)
 
 	# copy upper triangle to lower, of the true & estim interaction matrices
-	estim.folded <- foldMatrix(opt.mat$sp)
-	true.folded <- foldMatrix(true.model$model$sp)
+	estim.folded <- foldMatrix(opt.mat)
+	true.folded <- foldMatrix(true.adjacency.matrix)
 
 	spuriousEstimation <- (estim.folded != 0) & (true.folded == 0)
 	missedEstimation <- (estim.folded == 0) & (true.folded != 0)
 	severeMissedEstimation <- (estim.folded == 0) & (abs(true.folded) >= 0.5)	# missed that were higher than 0.5
 	correctEstimation <- (estim.folded != 0) & (true.folded != 0)	# this includes both correct and wrong directions
 	correctEstimation[upper.tri(correctEstimation)] <- t(correctEstimation)[upper.tri(correctEstimation)]	# symmetrize
-	wrongDirection <- (opt.mat$sp != 0) & correctEstimation & (true.model$model$sp == 0)
-	correctDirection <- (opt.mat$sp != 0) & correctEstimation & (true.model$model$sp != 0)
+	wrongDirection <- (opt.mat != 0) & correctEstimation & (true.adjacency.matrix == 0)
+	correctDirection <- (opt.mat != 0) & correctEstimation & (true.adjacency.matrix != 0)
 	
 	if(!is.null(excluded.interactions)) {
 		excludedInteractions <- (estim.folded == 0) & (true.folded != 0) & foldMatrix(excluded.interactions, op="and") != 0
@@ -275,7 +288,7 @@ find.correct.spurious <- function(estimated.model.coefs, true.model, excluded.in
 		excludedTrueNegatives <- NULL
 	}
 
-	#estimated <- opt.mat$sp != 0
+	#estimated <- opt.mat != 0
 	# copy upper triangle to lower, of the wrong direction matrix
 	wrongdir.folded <- ifelse(foldMatrix(wrongDirection) != 0, TRUE, FALSE)
 
