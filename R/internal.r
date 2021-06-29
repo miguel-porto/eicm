@@ -84,11 +84,6 @@ getMostSimilarModel <- function(popToEval, cachedModelList) {
 	return(.Call(SR__getMostSimilarModel, popToEval, cachedModelList))
 }
 
-# Is the adjacency matrix a cyclic graph?
-isCyclic <- function(coefs) {
-	return(.Call(SR__isCyclic, coefs))
-}
-
 # mask out from interactions species that affect others and that have a prevalence <= than given value
 # combine with given mask
 excludePrevalence <- function(options, prevalence.threshold, occurrences) {

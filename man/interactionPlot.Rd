@@ -8,7 +8,7 @@ interactionPlot(
   estimated.adjacency.matrix,
   true.adjacency.matrix,
   excluded.interactions = NULL,
-  layout = TRUE,
+  labels = TRUE,
   noplot = FALSE,
   legend = TRUE,
   ...
@@ -21,7 +21,7 @@ interactionPlot(
 
 \item{excluded.interactions}{a binary species x species matrix telling which interactions were excluded \emph{a priori}.}
 
-\item{layout}{logical. Do multi-panel layout?}
+\item{labels}{logical. Add default axis labels and title?}
 
 \item{noplot}{logical. Do plots? If TRUE, it will return the accuracy statistics only.}
 

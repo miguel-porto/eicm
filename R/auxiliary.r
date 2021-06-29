@@ -38,3 +38,18 @@ coef.eicm <- function(object, ...) {
 	return(object$model)
 }
 
+#' Is the adjacency matrix a cyclic graph?
+#' 
+#' Tests whether the given graph (given as an adjacency matrix) contains cycles.
+#' 
+#' @param coefs a square adjacency matrix.
+#' 
+#' @return A logical indicating whether there are cycles in the graph.
+#' @export
+isCyclic <- function(coefs) {
+	storage.mode(coefs) <- "numeric"
+	if(nrow(coefs) != ncol(coefs)) stop("'coefs' is not a square matrix")
+	return(.Call(SR__isCyclic, coefs))
+}
+
+

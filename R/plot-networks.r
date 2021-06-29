@@ -18,10 +18,8 @@ plot.eicm.matrix <- function(x, true.model, type=ifelse(is.null(true.model), "ne
 			if(ncol(distMatrix) < 2) return(invisible(NULL))
 			net <- igraph::graph_from_adjacency_matrix(as.matrix(distMatrix), mode="directed", weighted="coef", diag=FALSE)
 
-			oldpar <- graphics::par(no.readonly = TRUE)
+			oldpar <- graphics::par(mar=rep(0, 4))	# we don't want to restart a new layout each call, so we only save what we change
 			on.exit(graphics::par(oldpar))
-
-			graphics::par(mar=rep(0, 4))
 			if(is.null(igraph::E(net)$coef)) {
 				igraph::plot.igraph(net, edge.arrow.size=0.8, vertex.shape=ifelse(labels, "none", "circle"),
 					edge.label.family="Sans", vertex.size=5,

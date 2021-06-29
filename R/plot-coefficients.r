@@ -125,7 +125,7 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 	
 	if(plot.interactions)
 		out <- c(out, interactionPlot(estimated.adjacency.matrix=mat$sp, true.adjacency.matrix=true.model$model$sp,
-			excluded.interactions=excluded.interactions, noplot=noplot, layout=layout, legend=legend, ...))
+			excluded.interactions=excluded.interactions, noplot=noplot, labels=layout, legend=legend, ...))
 	
 	return(out)
 }
@@ -137,14 +137,14 @@ coefficientComparisonPlot <- function(model, true.model, nenv.to.plot=0, nlatent
 #' @param estimated.adjacency.matrix the interaction matrix of the model of interest.
 #' @param true.adjacency.matrix the interaction matrix of the model to compare with (usually, the one used for simulating the data).
 #' @param excluded.interactions a binary species x species matrix telling which interactions were excluded \emph{a priori}.
-#' @param layout logical. Do multi-panel layout?
+#' @param labels logical. Add default axis labels and title?
 #' @param noplot logical. Do plots? If TRUE, it will return the accuracy statistics only.
 #' @param legend logical. Plot legend?
 #' @param ... further arguments to pass to \code{plot}.
 #' @return A vector with accuracy statistics.
 #' @export
 interactionPlot <- function(estimated.adjacency.matrix, true.adjacency.matrix, excluded.interactions=NULL,
-	layout=TRUE, noplot=FALSE, legend=TRUE, ...) {
+	labels=TRUE, noplot=FALSE, legend=TRUE, ...) {
 
 	interactions <- find.correct.spurious(estimated.adjacency.matrix, true.adjacency.matrix, excluded.interactions)
 
@@ -176,8 +176,8 @@ interactionPlot <- function(estimated.adjacency.matrix, true.adjacency.matrix, e
 
 	if(!noplot) {
 		graphics::plot(interactions$nodirection.estimated ~ interactions$nodirection.true, asp=1, type="n", bty="l", col=colors,
-			xlab=ifelse(layout, "True", NA), ylab=ifelse(layout, "Estimated", NA),
-			main=ifelse(layout, "Species Interaction coefficients", NA),
+			xlab=ifelse(labels, "True", NA), ylab=ifelse(labels, "Estimated", NA),
+			main=ifelse(labels, "Species Interaction coefficients", NA),
 			pch=19, cex=0.75, ...)
 
 	#rect(-THRESHOLD, usr[3], THRESHOLD, usr[4], col="gray", border=NA)
