@@ -3,8 +3,9 @@ plot.eicm.matrix <- function(x, true.model=NULL, type=ifelse(is.null(true.model)
 	switch(pmatch(type, c("coefficients", "network")), {
 		coefficientComparisonPlot(x, true.model=true.model, ...)
 	}, {
-		if(!missing(true.model) && !inherits(true.model, "eicm")) stop("true.model must be of class 'eicm'")
-		plotNetworkFromMatrix(x$sp, true.adjacency=true.model$model$sp, exclude.orphans=exclude.orphans, labels=labels, ...)
+		if(!is.null(true.model) && !inherits(true.model, "eicm")) stop("true.model must be of class 'eicm'")
+		
+		plotNetworkFromMatrix(x$sp, true.adjacency=if(is.null(true.model)) NULL else true.model$model$sp, exclude.orphans=exclude.orphans, labels=labels, ...)
 	})
 }
 
