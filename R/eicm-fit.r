@@ -125,10 +125,13 @@ eicm.fit <- function(occurrences, env=NULL, traits=NULL, intercept=TRUE,
 	
 	# Interaction exclusions
 	if(!is.null(exclude.prevalence) && exclude.prevalence > 0) {
-		options <- excludePrevalence(options, exclude.prevalence, occurrences)
+		options <- excludePrevalence(options, exclude.prevalence, occurrences, two.way=FALSE)
 #		message(sprintf("Excluded from estimation interactions involving species with %d or less presences, or with %d or more presences.", exclude.prevalence, nsamples - exclude.prevalence))
 		message(sprintf("Excluded from estimation interactions departing from (caused by) species with %d or less presences.", exclude.prevalence))
 	}
+	
+	# exclude from interaction calculation any absent species
+	options <- excludePrevalence(options, 0, occurrences, two.way=TRUE)
 
 	if(is.null(traits))
 		traits <- matrix(ncol=0, nrow=nspecies, dimnames=list(colnames(occurrences), NULL))
