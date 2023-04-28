@@ -67,7 +67,7 @@ static inline void fast_srand( int seed ) {
 }
 
 //fastrand routine returns one integer, similar output value range as C lib.
-static inline int fastrand() {
+static inline int fastrand(void) {
 	g_seed = (214013*g_seed+2531011);
 	return (g_seed>>16)&0x7FFF;
 }
