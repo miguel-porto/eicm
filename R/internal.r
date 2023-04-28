@@ -84,14 +84,10 @@ getMostSimilarModel <- function(popToEval, cachedModelList) {
 	return(.Call(SR__getMostSimilarModel, popToEval, cachedModelList))
 }
 
-# Is the adjacency matrix a cyclic graph?
-isCyclic <- function(coefs) {
-	return(.Call(SR__isCyclic, coefs))
-}
-
-# mask out from interactions species that affect others and that have a prevalence <= than given value
+# mask out from interaction calculation species that affect others and that have a prevalence <= than given value, if two.way=FALSE
+# mask out from interaction calculation any species (affected or affector) that has a prevalence <= given value, if two.way=TRUE
 # combine with given mask
-excludePrevalence <- function(options, prevalence.threshold, occurrences) {
+excludePrevalence <- function(options, prevalence.threshold, occurrences, two.way=FALSE) {
 	prev <- apply(occurrences, 2, sum)
 	nsamples <- nrow(occurrences)
 	nspecies <- ncol(occurrences)
@@ -100,8 +96,10 @@ excludePrevalence <- function(options, prevalence.threshold, occurrences) {
 #	exclude <- exclude | (prev >= (nsamples - prevalence.threshold))
 
 	spmask <- matrix(1, ncol=nspecies, nrow=nspecies)
-#	spmask[exclude, ] <- 0
-	spmask[, exclude] <- 0	# only exclude when species is in the columns (i.e. it's the "affector")
+	if(two.way)
+		spmask[exclude, ] <- 0	# exclude when species is in the rows (i.e. it's the "affected")
+
+	spmask[, exclude] <- 0		# exclude when species is in the columns (i.e. it's the "affector")
 	options <- options + list(mask=list(sp=spmask))
 	return(options)
 }

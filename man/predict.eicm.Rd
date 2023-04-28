@@ -4,8 +4,7 @@
 \alias{predict.eicm}
 \title{Predict method for EICM fits}
 \usage{
-\method{predict}{eicm}(object, nrepetitions = 10000, newdata = NULL,
-  ...)
+\method{predict}{eicm}(object, nrepetitions = 10000, newdata = NULL, ...)
 }
 \arguments{
 \item{object}{the fitted EICM model.}

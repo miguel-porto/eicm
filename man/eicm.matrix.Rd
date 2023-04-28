@@ -4,8 +4,7 @@
 \alias{eicm.matrix}
 \title{Define a model object for a EICM model}
 \usage{
-eicm.matrix(env.coefs, sp.coefs = NULL, latent = NULL,
-  options = NULL)
+eicm.matrix(env.coefs, sp.coefs = NULL, latent = NULL, options = NULL)
 }
 \arguments{
 \item{env.coefs}{the environmental coefficient matrix: a species x variable matrix (including intercept).}

@@ -4,9 +4,17 @@
 \alias{profile.eicm}
 \title{Likelihood profiles for EICMs}
 \usage{
-\method{profile}{eicm}(fitted, all.pars = TRUE, parmatrix, species,
-  parameter, step = 0.3, ncores = parallel::detectCores(),
-  alpha = 0.01, ...)
+\method{profile}{eicm}(
+  fitted,
+  all.pars = TRUE,
+  parmatrix,
+  species,
+  parameter,
+  step = 0.3,
+  ncores = parallel::detectCores(),
+  alpha = 0.01,
+  ...
+)
 }
 \arguments{
 \item{fitted}{the fitted EICM model.}

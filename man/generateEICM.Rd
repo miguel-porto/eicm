@@ -4,10 +4,20 @@
 \alias{generateEICM}
 \title{Generate EICM model following a Beta frequency distribution}
 \usage{
-generateEICM(nspecies, nsamples, nenv, ninteractions, shape1, shape2,
-  nbins = 10, nrepetitions = 5, shrinkage = 2, bounds = 10,
+generateEICM(
+  nspecies,
+  nsamples,
+  nenv,
+  ninteractions,
+  shape1,
+  shape2,
+  nbins = 10,
+  nrepetitions = 5,
+  shrinkage = 2,
+  bounds = 10,
   swarm.size = floor((ninteractions + nspecies * (nenv + 1)) * 0.5),
-  maxit.stagnate = 150)
+  maxit.stagnate = 150
+)
 }
 \arguments{
 \item{nspecies}{the number of species to generate.}

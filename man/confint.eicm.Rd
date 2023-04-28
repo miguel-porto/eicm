@@ -4,8 +4,14 @@
 \alias{confint.eicm}
 \title{Confidence intervals for EICM parameters}
 \usage{
-\method{confint}{eicm}(object, parm, level = 0.99, step = 0.3,
-  ncores = parallel::detectCores(), ...)
+\method{confint}{eicm}(
+  object,
+  parm,
+  level = 0.99,
+  step = 0.3,
+  ncores = parallel::detectCores(),
+  ...
+)
 }
 \arguments{
 \item{object}{the fitted EICM model.}

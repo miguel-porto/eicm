@@ -4,14 +4,26 @@
 \alias{eicm.fit}
 \title{Estimate a EICM model}
 \usage{
-eicm.fit(occurrences, env = NULL, traits = NULL, intercept = TRUE,
-  n.latent = 0, forbidden = NULL, allowed = NULL, mask.sp = NULL,
-  exclude.prevalence = 0, options = NULL, initial.values = NULL,
+eicm.fit(
+  occurrences,
+  env = NULL,
+  traits = NULL,
+  intercept = TRUE,
+  n.latent = 0,
+  forbidden = NULL,
+  allowed = NULL,
+  mask.sp = NULL,
+  exclude.prevalence = 0,
+  options = NULL,
+  initial.values = NULL,
   regularization = c(ifelse(n.latent > 0, 0.5, 0), 1),
-  regularization.type = "hybrid", fast = FALSE, n.cores = 1,
-  optim.method = "L-BFGS-B", optim.control = list(trace = 1, maxit =
-  10000, ndeps = 1e-04, factr = ifelse(fast, 1e-04,
-  1e-06)/.Machine$double.eps))
+  regularization.type = "hybrid",
+  fast = FALSE,
+  n.cores = 1,
+  optim.method = "L-BFGS-B",
+  optim.control = list(trace = 1, maxit = 10000, ndeps = 1e-04, factr = ifelse(fast,
+    1e-04, 1e-06)/.Machine$double.eps)
+)
 }
 \arguments{
 \item{occurrences}{a binary (0/1) sample x species matrix, possibly including NAs.}
