@@ -27,7 +27,7 @@ plotNetworkFromMatrix(
 relative to the default, when plotting the weighted graph (only used when
 \code{true.adjacency} is not provided).}
 
-\item{edge.arrow.size}{size of the arrow heads. See \code{\link{igraph::plot.igraph}}}
+\item{edge.arrow.size}{size of the arrow heads. See \code{igraph::plot.igraph}}
 
 \item{severe.threshold}{the absolute threshold above which the interaction weights are highlighted in the graph.}
 }
